@@ -1,18 +1,35 @@
 .doc-card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-top: 3px solid transparent;
   border-radius: var(--radius-xl);
   padding: 1.5rem;
-  transition: all 0.2s ease, background-color 0.3s ease;
+  transition: all 0.22s ease, background-color 0.3s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
 }
+
+/* Cycle top-border colour through every 4 cards */
+.doc-card:nth-child(4n+1) { border-top-color: #2563eb; }
+.doc-card:nth-child(4n+2) { border-top-color: #10b981; }
+.doc-card:nth-child(4n+3) { border-top-color: #7c3aed; }
+.doc-card:nth-child(4n+4) { border-top-color: #f59e0b; }
+
+[data-theme="dark"] .doc-card:nth-child(4n+1) { border-top-color: #3b82f6; }
+[data-theme="dark"] .doc-card:nth-child(4n+2) { border-top-color: #34d399; }
+[data-theme="dark"] .doc-card:nth-child(4n+3) { border-top-color: #a78bfa; }
+[data-theme="dark"] .doc-card:nth-child(4n+4) { border-top-color: #fbbf24; }
+
+/* Matching hover shadows */
+.doc-card:nth-child(4n+1):hover { box-shadow: 0 6px 24px rgba(37, 99, 235, 0.13); border-color: rgba(37, 99, 235, 0.35); border-top-color: #2563eb; }
+.doc-card:nth-child(4n+2):hover { box-shadow: 0 6px 24px rgba(16, 185, 129, 0.13); border-color: rgba(16, 185, 129, 0.35); border-top-color: #10b981; }
+.doc-card:nth-child(4n+3):hover { box-shadow: 0 6px 24px rgba(124, 58, 237, 0.13); border-color: rgba(124, 58, 237, 0.35); border-top-color: #7c3aed; }
+.doc-card:nth-child(4n+4):hover { box-shadow: 0 6px 24px rgba(245, 158, 11, 0.13); border-color: rgba(245, 158, 11, 0.35); border-top-color: #f59e0b; }
 
 .doc-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
 }
 
 .doc-card-header {

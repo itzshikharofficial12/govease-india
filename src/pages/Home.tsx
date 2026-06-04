@@ -24,6 +24,7 @@ export const Home: React.FC = () => {
     <div>
       {/* Hero Section */}
       <section className="hero-section" id="hero">
+        <div className="hero-blob-extra" aria-hidden="true" />
         <div className="container">
           <div className="hero-badge">
             <Zap size={14} />

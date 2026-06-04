@@ -53,6 +53,25 @@
 }
 
 /* ==================
+   Backdrop (expanded mode)
+   ================== */
+
+.glifty-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 98;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: backdropIn 0.25s ease-out;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ==================
    Chat Panel
    ================== */
 
@@ -61,8 +80,8 @@
   bottom: 5.5rem;
   right: 1.5rem;
   z-index: 99;
-  width: 380px;
-  max-height: 520px;
+  width: 390px;
+  max-height: 560px;
   background-color: var(--color-surface);
   border-radius: var(--radius-2xl);
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
@@ -71,6 +90,23 @@
   flex-direction: column;
   overflow: hidden;
   animation: gliftySlidIn 0.3s ease-out;
+  transition: all 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Expanded / near-fullscreen state */
+.glifty-panel.expanded {
+  bottom: 50%;
+  right: 50%;
+  transform: translate(50%, 50%);
+  width: min(720px, calc(100vw - 3rem));
+  max-height: min(680px, calc(100vh - 3rem));
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+.glifty-panel.expanded .glifty-messages {
+  min-height: 380px;
+  max-height: 520px;
 }
 
 @keyframes gliftySlidIn {
@@ -84,14 +120,18 @@
   }
 }
 
-/* Header */
+/* ==================
+   Header
+   ================== */
+
 .glifty-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem 0.875rem 1.25rem;
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   color: white;
+  flex-shrink: 0;
 }
 
 .glifty-avatar {
@@ -105,6 +145,11 @@
   flex-shrink: 0;
 }
 
+.glifty-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .glifty-header-info h3 {
   font-size: 1rem;
   font-weight: 700;
@@ -112,12 +157,84 @@
 }
 
 .glifty-header-info p {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   opacity: 0.85;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Messages Area */
+/* Header action buttons row */
+.glifty-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+/* Shared header action button base */
+.glifty-lang-toggle,
+.glifty-expand-btn,
+.glifty-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+/* EN / HI language toggle pill */
+.glifty-lang-toggle {
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-family: inherit;
+  min-width: 2rem;
+  white-space: nowrap;
+  color: white;
+}
+
+.glifty-lang-toggle:hover {
+  background: rgba(255, 255, 255, 0.32);
+  transform: scale(1.06);
+}
+
+/* Expand button */
+.glifty-expand-btn {
+  width: 1.875rem;
+  height: 1.875rem;
+}
+
+.glifty-expand-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+  color: white;
+  transform: scale(1.08);
+}
+
+/* Clear chat button */
+.glifty-clear-btn {
+  width: 1.875rem;
+  height: 1.875rem;
+}
+
+.glifty-clear-btn:hover {
+  background: rgba(255, 100, 100, 0.35);
+  border-color: rgba(255, 150, 150, 0.5);
+  color: white;
+  transform: scale(1.08);
+}
+
+/* ==================
+   Messages Area
+   ================== */
+
 .glifty-messages {
   flex: 1;
   overflow-y: auto;
@@ -126,12 +243,12 @@
   flex-direction: column;
   gap: 0.75rem;
   min-height: 260px;
-  max-height: 320px;
+  max-height: 340px;
   background-color: var(--color-chat-bg);
 }
 
 .glifty-msg {
-  max-width: 85%;
+  max-width: 88%;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-xl);
   font-size: 0.875rem;
@@ -152,6 +269,12 @@
   border-bottom-left-radius: var(--radius-sm);
 }
 
+/* Compare messages get wider + monospace table */
+.glifty-msg.bot.compare {
+  max-width: 96%;
+  font-size: 0.8rem;
+}
+
 .glifty-msg.user {
   background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: white;
@@ -169,6 +292,7 @@
   padding: 0.75rem 1.25rem;
 }
 
+/* Typing dots */
 .typing-dot {
   width: 6px;
   height: 6px;
@@ -185,7 +309,172 @@
   40% { transform: translateY(-6px); opacity: 1; }
 }
 
-/* Quick Suggestion Chips */
+/* ==================
+   Animated Word Reveal
+   ================== */
+
+.glifty-word {
+  opacity: 0;
+  display: inline;
+  transition: opacity 0.1s ease;
+}
+
+.glifty-word.visible {
+  opacity: 1;
+}
+
+/* ==================
+   Bot Message Footer
+   (rating + copy)
+   ================== */
+
+.glifty-msg-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Thumbs group */
+.glifty-rate-group {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.glifty-rate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.glifty-rate-btn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: scale(1.12);
+}
+
+.glifty-rate-btn.active-up {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+[data-theme="dark"] .glifty-rate-btn.active-up {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: #34d399;
+  color: #34d399;
+}
+
+.glifty-rate-btn.active-down {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .glifty-rate-btn.active-down {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: #f87171;
+  color: #f87171;
+}
+
+/* "Thanks!" micro-label */
+.glifty-rated-label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  animation: msgFadeIn 0.2s ease-out;
+}
+
+/* Copy button + tooltip */
+.glifty-copy-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  position: relative;
+}
+
+.glifty-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.glifty-copy-btn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.glifty-copy-btn.copied {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+[data-theme="dark"] .glifty-copy-btn.copied {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: #34d399;
+  color: #34d399;
+}
+
+.glifty-copied-tooltip {
+  position: absolute;
+  right: calc(100% + 0.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e293b;
+  color: #f1f5f9;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltipIn 0.15s ease-out;
+  z-index: 10;
+}
+
+.glifty-copied-tooltip::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-left-color: #1e293b;
+}
+
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(-50%) scale(0.9); }
+  to   { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+/* ==================
+   Quick Suggestion Chips
+   ================== */
+
 .glifty-suggestions {
   display: flex;
   flex-wrap: wrap;
@@ -213,12 +502,63 @@
   border-color: var(--color-primary);
 }
 
-/* Action Links inside bot messages */
+/* Follow-up chip variant — slightly different accent */
+.glifty-chip.followup {
+  border-color: rgba(124, 58, 237, 0.25);
+  color: #7c3aed;
+}
+
+.glifty-chip.followup:hover {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: #7c3aed;
+}
+
+[data-theme="dark"] .glifty-chip.followup {
+  border-color: rgba(167, 139, 250, 0.3);
+  color: #a78bfa;
+}
+
+[data-theme="dark"] .glifty-chip.followup:hover {
+  background: rgba(167, 139, 250, 0.12);
+  border-color: #a78bfa;
+}
+
+/* ==================
+   Follow-up Suggestions
+   ================== */
+
+.glifty-followup-chips {
+  padding: 0.5rem 1.25rem 0.75rem;
+  background-color: var(--color-chat-bg);
+  animation: msgFadeIn 0.25s ease-out;
+}
+
+.glifty-followup-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.glifty-followup-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* ==================
+   Action Links inside bot messages
+   ================== */
+
 .glifty-action-links {
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
   margin-top: 0.75rem;
+  animation: msgFadeIn 0.2s ease-out;
 }
 
 .glifty-action-btn {
@@ -246,15 +586,81 @@
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
-/* Input Area */
+/* ==================
+   Input Area
+   ================== */
+
 .glifty-input-area {
   display: flex;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--color-border);
   background-color: var(--color-surface);
+  flex-shrink: 0;
+  align-items: center;
 }
 
+/* Mic button */
+.glifty-mic-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.glifty-mic-btn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Listening state — pulsing red */
+.glifty-mic-btn.listening {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #ef4444;
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+[data-theme="dark"] .glifty-mic-btn.listening {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #f87171;
+  color: #f87171;
+}
+
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+
+/* Mic recording dot indicator */
+.glifty-mic-btn.listening::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: micDotBlink 0.8s ease-in-out infinite;
+}
+
+@keyframes micDotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Text input */
 .glifty-input {
   flex: 1;
   padding: 0.625rem 0.875rem;
@@ -265,6 +671,7 @@
   font-family: inherit;
   transition: border-color 0.2s;
   background-color: var(--color-chat-bg);
+  color: var(--color-text-main);
 }
 
 .glifty-input:focus {
@@ -272,6 +679,7 @@
   background-color: var(--color-surface);
 }
 
+/* Send button */
 .glifty-send-btn {
   width: 2.25rem;
   height: 2.25rem;
@@ -305,11 +713,38 @@
     width: calc(100vw - 2rem);
     right: 1rem;
     bottom: 5rem;
-    max-height: 70vh;
+    max-height: 72vh;
+  }
+
+  .glifty-panel.expanded {
+    width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
+    bottom: 50%;
+    right: 50%;
+    transform: translate(50%, 50%);
+    border-radius: var(--radius-xl);
+  }
+
+  .glifty-panel.expanded .glifty-messages {
+    min-height: 200px;
+    max-height: calc(100vh - 14rem);
   }
 
   .glifty-fab {
     bottom: 1rem;
     right: 1rem;
+  }
+
+  .glifty-header-info p {
+    display: none;
+  }
+
+  .glifty-followup-row {
+    gap: 0.25rem;
+  }
+
+  .glifty-chip.followup {
+    font-size: 0.68rem;
+    padding: 0.3rem 0.6rem;
   }
 }

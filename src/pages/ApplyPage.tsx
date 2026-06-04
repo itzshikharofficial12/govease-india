@@ -231,9 +231,9 @@ via GoEase India portal.
                 </ul>
               </div>
               <div className="overview-section">
-                <h2><Files size={20} /> Required Documents</h2>
+                <h2><Files size={20} /> Required Documents {selectedSvcInfo ? `— ${language === 'HI' ? selectedSvcInfo.labelHi : selectedSvcInfo.label}` : '(General)'}</h2>
                 <ul className="overview-list">
-                  {doc.requiredDocs.map((item, i) => (
+                  {(selectedSvcInfo?.requiredDocs || doc.requiredDocs).map((item, i) => (
                     <li key={i}><FileText size={16} color="var(--color-primary)" /> {item}</li>
                   ))}
                 </ul>
@@ -286,11 +286,30 @@ via GoEase India portal.
                   <p style={{ color: 'var(--color-text-muted)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
                     Fill in the details below to submit your application for <strong>{language === 'HI' ? doc.titleHi : doc.title}</strong>.
                   </p>
-                  {!selectedService && (
-                    <div style={{ padding: '1rem', backgroundColor: '#fff3cd', borderRadius: '0.5rem', color: '#856404', marginBottom: '1rem' }}>
-                      <strong>⚠️ Please select a service above to continue</strong>
+
+                  {/* Service-specific required docs */}
+                  {selectedSvcInfo?.requiredDocs && selectedSvcInfo.requiredDocs.length > 0 && (
+                    <div style={{
+                      background: 'var(--color-info-bg, rgba(59,130,246,0.08))',
+                      border: '1px solid var(--color-info-border, rgba(59,130,246,0.2))',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '1rem 1.25rem',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <h4 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
+                        <Files size={16} /> Documents Needed for this Service
+                      </h4>
+                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                        {selectedSvcInfo.requiredDocs.map((d, i) => (
+                          <li key={i} style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                            <CheckCircle size={14} color="var(--color-success)" style={{ flexShrink: 0, marginTop: '2px' }} /> {d}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
+
+                  {/* Render service-specific fields if available, otherwise fallback to doc fields */}
                   {(selectedSvcInfo?.formFields || doc.formFields).map(field => (
                     <div className="form-group" key={field.name}>
                       <label>
@@ -326,7 +345,7 @@ via GoEase India portal.
                       )}
                     </div>
                   ))}
-                  <button type="submit" className="form-submit-btn" disabled={!selectedService}>
+                  <button type="submit" className="form-submit-btn">
                     Submit & Proceed to Payment <ArrowRight size={18} />
                   </button>
                 </form>

@@ -16,6 +16,7 @@ export interface ServiceOption {
   iconName: string;
   description: string;
   formFields?: FormField[];
+  requiredDocs?: string[];
 }
 
 export interface DocumentInfo {
@@ -53,127 +54,93 @@ export const documentsData: DocumentInfo[] = [
     category: 'Identity',
     iconName: 'Fingerprint',
     services: [
-      { 
-        id: 'new-enrolment', 
-        label: 'New Enrolment', 
-        labelHi: 'नया नामांकन', 
-        iconName: 'UserPlus', 
-        description: 'Apply for a fresh Aadhaar card at an enrolment centre',
+      { id: 'new-enrolment', label: 'New Enrolment', labelHi: 'नया नामांकन', iconName: 'UserPlus', description: 'Apply for a fresh Aadhaar card at an enrolment centre',
         formFields: [
-          ...commonPersonalFields,
+          { name: 'fullName', label: 'Full Name (as per ID proof)', type: 'text', placeholder: 'e.g. Rajesh Kumar Sharma', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
           { name: 'fatherName', label: "Father's / Guardian's Name", type: 'text', placeholder: 'As per records', required: true },
-          { name: 'idProof', label: 'Upload ID Proof', type: 'file', required: true },
-          { name: 'addressProof', label: 'Upload Address Proof', type: 'file', required: true }
-        ]
+          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile number', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', placeholder: 'you@example.com', required: false },
+          { name: 'address', label: 'Full Residential Address', type: 'textarea', placeholder: 'House No., Street, Locality, City, District, State, PIN', required: true },
+          { name: 'idProofType', label: 'Proof of Identity (POI) Type', type: 'select', required: true, options: ['Passport', 'PAN Card', 'Voter ID (EPIC)', 'Driving Licence', 'NREGA Job Card', 'Govt Photo ID'] },
+          { name: 'idProof', label: 'Upload Proof of Identity', type: 'file', required: true },
+          { name: 'addressProofType', label: 'Proof of Address (POA) Type', type: 'select', required: true, options: ['Passport', 'Bank Passbook', 'Voter ID', 'Driving Licence', 'Utility Bill (≤3 months)', 'Ration Card', 'Property Tax Receipt'] },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'dobProof', label: 'Upload Proof of Date of Birth', type: 'file', required: false }
+        ],
+        requiredDocs: ['Proof of Identity (Passport / PAN / Voter ID / Driving Licence)', 'Proof of Address (Utility bill / Bank passbook / Ration card)', 'Proof of Date of Birth (Birth certificate / Marksheet)', 'Proof of Relationship — for children (Birth cert + Parent Aadhaar)']
       },
-      { 
-        id: 'update-correction', 
-        label: 'Update / Correction', 
-        labelHi: 'अपडेट / सुधार', 
-        iconName: 'Edit', 
-        description: 'Update name, address, DOB, mobile, or email in Aadhaar',
+      { id: 'update-correction', label: 'Update / Correction', labelHi: 'अपडेट / सुधार', iconName: 'Edit', description: 'Update name, address, DOB, mobile, or email in Aadhaar',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Current Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'fieldToUpdate', label: 'Field to Update', type: 'select', required: true, options: ['Name', 'Address', 'Email', 'Mobile Number', 'Date of Birth'] },
-          { name: 'newValue', label: 'New Value', type: 'text', placeholder: 'Enter new value', required: true },
-          { name: 'updateProof', label: 'Supporting Document', type: 'file', placeholder: 'Proof for this update', required: true },
-          { name: 'reason', label: 'Reason for Update', type: 'textarea', placeholder: 'Why are you updating this?', required: false }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar number', required: true },
+          { name: 'fullName', label: 'Full Name (current)', type: 'text', required: true },
+          { name: 'updateField', label: 'Field to Update', type: 'select', required: true, options: ['Name', 'Address', 'Date of Birth', 'Gender', 'Mobile Number', 'Email'] },
+          { name: 'newValue', label: 'New Value / Updated Detail', type: 'text', placeholder: 'Enter the corrected/new value', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'For OTP verification', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true }
+        ],
+        requiredDocs: ['Aadhaar card (original)', 'Supporting document for the update (Name: Passport/PAN; Address: Utility bill/Rent agreement; DOB: Birth certificate/Marksheet)']
       },
-      { 
-        id: 'reprint', 
-        label: 'Order Reprint', 
-        labelHi: 'पुनर्मुद्रण', 
-        iconName: 'Printer', 
-        description: 'Order a PVC Aadhaar card reprint via UIDAI',
+      { id: 'reprint', label: 'Order Reprint', labelHi: 'पुनर्मुद्रण', iconName: 'Printer', description: 'Order a PVC Aadhaar card reprint via UIDAI',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'otp', label: 'OTP (will be sent to mobile)', type: 'text', placeholder: '6-digit OTP', required: true },
-          { name: 'deliveryAddress', label: 'Delivery Address (if different)', type: 'textarea', placeholder: 'Leave blank for registered address', required: false }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number / VID', type: 'text', placeholder: '12-digit Aadhaar or 16-digit VID', required: true },
+          { name: 'fullName', label: 'Full Name (as in Aadhaar)', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'For OTP verification', required: true },
+          { name: 'deliveryAddress', label: 'Delivery Address (if different)', type: 'textarea', placeholder: 'Leave blank to use Aadhaar address', required: false }
+        ],
+        requiredDocs: ['Aadhaar number or Enrolment ID', 'Registered mobile number for OTP']
       },
-      { 
-        id: 'download', 
-        label: 'Download e-Aadhaar', 
-        labelHi: 'ई-आधार डाउनलोड', 
-        iconName: 'Download', 
-        description: 'Download a digital copy of your Aadhaar (e-Aadhaar PDF)',
+      { id: 'download', label: 'Download e-Aadhaar', labelHi: 'ई-आधार डाउनलोड', iconName: 'Download', description: 'Download a digital copy of your Aadhaar (e-Aadhaar PDF)',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'otp', label: 'OTP (will be sent to mobile)', type: 'text', placeholder: '6-digit OTP', required: true }
-        ]
+          { name: 'idType', label: 'Search By', type: 'select', required: true, options: ['Aadhaar Number', 'Enrolment ID (EID)', 'Virtual ID (VID)'] },
+          { name: 'idValue', label: 'Enter Number', type: 'text', placeholder: 'Enter your Aadhaar / EID / VID', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent here', required: true }
+        ],
+        requiredDocs: ['Aadhaar Number or Enrolment ID or VID', 'Registered mobile number for OTP']
       },
-      { 
-        id: 'check-status', 
-        label: 'Check Enrolment Status', 
-        labelHi: 'स्थिति जाँचें', 
-        iconName: 'Search', 
-        description: 'Track the status of your Aadhaar enrolment or update',
+      { id: 'check-status', label: 'Check Enrolment Status', labelHi: 'स्थिति जाँचें', iconName: 'Search', description: 'Track the status of your Aadhaar enrolment or update',
         formFields: [
-          { name: 'enrollmentId', label: 'Enrolment ID (14-digit EID)', type: 'text', placeholder: 'EID from your slip', required: true }
-        ]
+          { name: 'eid', label: 'Enrolment ID (EID)', type: 'text', placeholder: '14-digit EID from acknowledgement slip', required: true },
+          { name: 'enrollmentDate', label: 'Date of Enrolment', type: 'date', required: true }
+        ],
+        requiredDocs: ['Acknowledgement slip with 14-digit EID']
       },
-      { 
-        id: 'lock-biometrics', 
-        label: 'Lock / Unlock Biometrics', 
-        labelHi: 'बायोमेट्रिक लॉक', 
-        iconName: 'Lock', 
-        description: 'Lock or unlock your biometric authentication for security',
+      { id: 'lock-biometrics', label: 'Lock / Unlock Biometrics', labelHi: 'बायोमेट्रिक लॉक', iconName: 'Lock', description: 'Lock or unlock your biometric authentication for security',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'otp', label: 'OTP (will be sent to mobile)', type: 'text', placeholder: '6-digit OTP', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar number', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent here', required: true },
           { name: 'action', label: 'Action', type: 'select', required: true, options: ['Lock Biometrics', 'Unlock Biometrics'] }
-        ]
+        ],
+        requiredDocs: ['Aadhaar number', 'Registered mobile number']
       },
-      { 
-        id: 'generate-vid', 
-        label: 'Generate / Retrieve VID', 
-        labelHi: 'VID जनरेट करें', 
-        iconName: 'KeyRound', 
-        description: 'Generate a 16-digit Virtual ID for privacy-safe authentication',
+      { id: 'generate-vid', label: 'Generate / Retrieve VID', labelHi: 'VID जनरेट करें', iconName: 'KeyRound', description: 'Generate a 16-digit Virtual ID for privacy-safe authentication',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'otp', label: 'OTP (will be sent to mobile)', type: 'text', placeholder: '6-digit OTP', required: true },
-          { name: 'consent', label: 'I consent to generate VID', type: 'text', placeholder: 'Type YES to confirm', required: true }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar number', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent here', required: true },
+          { name: 'vidAction', label: 'Action', type: 'select', required: true, options: ['Generate New VID', 'Retrieve Existing VID'] }
+        ],
+        requiredDocs: ['Aadhaar number', 'Registered mobile number for OTP']
       },
-      { 
-        id: 'verify-aadhaar', 
-        label: 'Verify Aadhaar', 
-        labelHi: 'आधार सत्यापन', 
-        iconName: 'ShieldCheck', 
-        description: 'Verify your Aadhaar number validity online via UIDAI',
+      { id: 'verify-aadhaar', label: 'Verify Aadhaar', labelHi: 'आधार सत्यापन', iconName: 'ShieldCheck', description: 'Verify your Aadhaar number validity online via UIDAI',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'name', label: 'Full Name', type: 'text', placeholder: 'As per Aadhaar records', required: true }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number to Verify', type: 'text', placeholder: '12-digit Aadhaar number', required: true }
+        ],
+        requiredDocs: ['Aadhaar number']
       },
-      { 
-        id: 'bank-linking', 
-        label: 'Aadhaar-Bank Linking', 
-        labelHi: 'बैंक लिंकिंग स्थिति', 
-        iconName: 'Landmark', 
-        description: 'Check if your Aadhaar is linked with your bank account',
+      { id: 'bank-linking', label: 'Aadhaar-Bank Linking', labelHi: 'बैंक लिंकिंग स्थिति', iconName: 'Landmark', description: 'Check if your Aadhaar is linked with your bank account',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'bankName', label: 'Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Other'] },
-          { name: 'accountNumber', label: 'Bank Account Number', type: 'text', placeholder: 'Your account number', required: true }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar number', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent here', required: true }
+        ],
+        requiredDocs: ['Aadhaar number', 'Registered mobile number']
       },
-      { 
-        id: 'maadhaar', 
-        label: 'mAadhaar Profile', 
-        labelHi: 'mAadhaar प्रोफ़ाइल', 
-        iconName: 'Smartphone', 
-        description: 'Access your Aadhaar profile via the official mAadhaar app',
+      { id: 'maadhaar', label: 'mAadhaar Profile', labelHi: 'mAadhaar प्रोफ़ाइल', iconName: 'Smartphone', description: 'Access your Aadhaar profile via the official mAadhaar app',
         formFields: [
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar number', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'Must match mAadhaar registered number', required: true }
+        ],
+        requiredDocs: ['Aadhaar number', 'Mobile number registered with UIDAI', 'mAadhaar app installed on device']
       }
     ],
     eligibility: ['Any resident of India', 'No age restriction', 'No citizenship requirement — residency is sufficient'],
@@ -207,105 +174,94 @@ export const documentsData: DocumentInfo[] = [
     category: 'Finance',
     iconName: 'CreditCard',
     services: [
-      { 
-        id: 'new-pan', 
-        label: 'Apply for New PAN', 
-        labelHi: 'नया पैन आवेदन', 
-        iconName: 'FilePlus', 
-        description: 'Apply for a new PAN card using Form 49A (Indian) or 49AA (Foreign)',
+      { id: 'new-pan', label: 'Apply for New PAN', labelHi: 'नया पैन आवेदन', iconName: 'FilePlus', description: 'Apply for a new PAN card using Form 49A (Indian) or 49AA (Foreign)',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar number', required: true },
-          { name: 'citizenshipType', label: 'Citizenship Type', type: 'select', required: true, options: ['Indian', 'Foreign National'] },
-          { name: 'incomeSource', label: 'Source of Income', type: 'select', required: true, options: ['Salary', 'Business', 'Capital Gains', 'Other'] },
-          { name: 'idProof', label: 'Upload ID Proof', type: 'file', required: true },
-          { name: 'photo', label: 'Upload Photograph', type: 'file', required: true }
-        ]
+          { name: 'applicantType', label: 'Application Type', type: 'select', required: true, options: ['Form 49A (Indian Citizen)', 'Form 49AA (Foreign Citizen)'] },
+          { name: 'title', label: 'Title', type: 'select', required: true, options: ['Shri', 'Smt', 'Kumari', 'M/s'] },
+          { name: 'lastName', label: 'Last Name / Surname', type: 'text', placeholder: 'As per ID proof', required: true },
+          { name: 'firstName', label: 'First Name', type: 'text', placeholder: 'As per ID proof', required: true },
+          { name: 'middleName', label: 'Middle Name', type: 'text', placeholder: 'Optional', required: false },
+          { name: 'fatherName', label: "Father's Full Name", type: 'text', placeholder: 'Mandatory for individuals', required: true },
+          { name: 'dob', label: 'Date of Birth / Incorporation', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar (mandatory)', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Residential Address', type: 'textarea', placeholder: 'Flat/Door No, Street, Area, City, State, PIN', required: true },
+          { name: 'sourceOfIncome', label: 'Source of Income', type: 'select', required: true, options: ['Salary', 'Business / Profession', 'Capital Gains', 'No Income'] },
+          { name: 'idProof', label: 'Upload Proof of Identity', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'dobProof', label: 'Upload Proof of Date of Birth', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Proof of Identity (Aadhaar / Passport / Voter ID / DL)', 'Proof of Address (Aadhaar / Utility bill / Bank statement)', 'Proof of Date of Birth (Birth certificate / Marksheet)', '2 recent passport-size colour photographs', 'Aadhaar card (mandatory for Indian citizens)']
       },
-      { 
-        id: 'correction-reprint', 
-        label: 'Correction / Reprint', 
-        labelHi: 'सुधार / पुनर्मुद्रण', 
-        iconName: 'Edit', 
-        description: 'Correct details or request a reprint of your existing PAN card',
+      { id: 'correction-reprint', label: 'Correction / Reprint', labelHi: 'सुधार / पुनर्मुद्रण', iconName: 'Edit', description: 'Correct details or request a reprint of your existing PAN card',
         formFields: [
-          { name: 'panNumber', label: 'Current PAN Number', type: 'text', placeholder: '10-character PAN', required: true },
-          { name: 'correctionType', label: 'Type of Correction', type: 'select', required: true, options: ['Name', 'Address', 'Email', 'Mobile', 'Other Details'] },
-          { name: 'newValue', label: 'New Value', type: 'text', placeholder: 'Enter corrected value', required: true },
-          { name: 'supportingDoc', label: 'Supporting Document', type: 'file', required: true },
-          { name: 'reason', label: 'Reason for Correction', type: 'textarea', placeholder: 'Explain the change', required: false }
-        ]
-      },
-      { 
-        id: 'link-aadhaar', 
-        label: 'Link PAN with Aadhaar', 
-        labelHi: 'आधार से लिंक', 
-        iconName: 'Link', 
-        description: 'Link your PAN with Aadhaar as mandated by the Income Tax Department',
-        formFields: [
-          { name: 'panNumber', label: 'PAN Number', type: 'text', placeholder: '10-character PAN', required: true },
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true }
-        ]
-      },
-      { 
-        id: 'instant-epan', 
-        label: 'Instant e-PAN', 
-        labelHi: 'तत्काल ई-पैन', 
-        iconName: 'Zap', 
-        description: 'Get an instant e-PAN using your Aadhaar number and OTP',
-        formFields: [
-          { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'As per Aadhaar', required: true },
+          { name: 'existingPan', label: 'Existing PAN Number', type: 'text', placeholder: '10-character PAN (e.g. ABCDE1234F)', required: true },
+          { name: 'correctionType', label: 'Request Type', type: 'select', required: true, options: ['Correction in PAN Data', 'Reprint (No Data Change)'] },
+          { name: 'fullName', label: 'Full Name (corrected / as-is)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth (corrected / as-is)', type: 'date', required: true },
+          { name: 'fatherName', label: "Father's Name", type: 'text', required: true },
           { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'otp', label: 'OTP (sent to mobile)', type: 'text', placeholder: '6-digit OTP', required: true }
-        ]
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email', type: 'email', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Existing PAN Card copy', 'Aadhaar Card', 'Supporting document for correction (if name/DOB change)', 'Recent passport-size photograph']
       },
-      { 
-        id: 'check-status', 
-        label: 'Check Application Status', 
-        labelHi: 'आवेदन स्थिति', 
-        iconName: 'Search', 
-        description: 'Track the status of your PAN application using acknowledgment number',
-        formFields: [
-          { name: 'acknowledgmentNumber', label: 'Acknowledgment Number', type: 'text', placeholder: '15-digit acknowledgment no.', required: true }
-        ]
-      },
-      { 
-        id: 'verify-pan', 
-        label: 'Verify PAN Details', 
-        labelHi: 'पैन सत्यापन', 
-        iconName: 'ShieldCheck', 
-        description: 'Verify PAN details and active status on Income Tax portal',
+      { id: 'link-aadhaar', label: 'Link PAN with Aadhaar', labelHi: 'आधार से लिंक', iconName: 'Link', description: 'Link your PAN with Aadhaar as mandated by the Income Tax Department',
         formFields: [
           { name: 'panNumber', label: 'PAN Number', type: 'text', placeholder: '10-character PAN', required: true },
-          { name: 'fullName', label: 'Full Name (as per PAN)', type: 'text', placeholder: 'Your name', required: true }
-        ]
-      },
-      { 
-        id: 'know-pan', 
-        label: 'Know Your PAN', 
-        labelHi: 'अपना पैन जानें', 
-        iconName: 'Eye', 
-        description: 'Retrieve your PAN number using name, DOB, and mobile OTP',
-        formFields: [
-          { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'As per tax records', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
+          { name: 'nameAsPerAadhaar', label: 'Name (as per Aadhaar)', type: 'text', required: true },
           { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
-          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'otp', label: 'OTP (sent to mobile)', type: 'text', placeholder: '6-digit OTP', required: true }
-        ]
+          { name: 'phone', label: 'Mobile Number (linked to Aadhaar)', type: 'tel', required: true }
+        ],
+        requiredDocs: ['PAN Card', 'Aadhaar Card', 'Mobile number registered with Aadhaar']
       },
-      { 
-        id: 'surrender-pan', 
-        label: 'Surrender Duplicate PAN', 
-        labelHi: 'डुप्लीकेट पैन सरेंडर', 
-        iconName: 'FileX', 
-        description: 'Surrender extra PAN cards — holding more than one PAN is illegal',
+      { id: 'instant-epan', label: 'Instant e-PAN', labelHi: 'तत्काल ई-पैन', iconName: 'Zap', description: 'Get an instant e-PAN using your Aadhaar number and OTP',
         formFields: [
-          { name: 'panToKeep', label: 'PAN to Keep (Primary)', type: 'text', placeholder: '10-character PAN', required: true },
-          { name: 'panToSurrender', label: 'PAN to Surrender', type: 'text', placeholder: '10-character PAN', required: true },
-          { name: 'reason', label: 'Reason for Surrender', type: 'textarea', placeholder: 'Explain duplicate PAN situation', required: true },
-          { name: 'declaration', label: 'I declare this is duplicate', type: 'text', placeholder: 'Type YES to confirm', required: true }
-        ]
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar (with active mobile)', required: true },
+          { name: 'phone', label: 'Mobile Number (linked to Aadhaar)', type: 'tel', required: true }
+        ],
+        requiredDocs: ['Aadhaar Card with active registered mobile number', 'No PAN should have been allotted previously']
+      },
+      { id: 'check-status', label: 'Check Application Status', labelHi: 'आवेदन स्थिति', iconName: 'Search', description: 'Track the status of your PAN application using acknowledgment number',
+        formFields: [
+          { name: 'ackNumber', label: 'Acknowledgment Number', type: 'text', placeholder: '15-digit acknowledgment number', required: true }
+        ],
+        requiredDocs: ['Acknowledgment number from PAN application receipt']
+      },
+      { id: 'verify-pan', label: 'Verify PAN Details', labelHi: 'पैन सत्यापन', iconName: 'ShieldCheck', description: 'Verify PAN details and active status on Income Tax portal',
+        formFields: [
+          { name: 'panNumber', label: 'PAN Number', type: 'text', placeholder: '10-character PAN', required: true },
+          { name: 'fullName', label: 'Full Name (as per PAN)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: 'For OTP verification', required: true }
+        ],
+        requiredDocs: ['PAN Number', 'Name and DOB as per PAN records']
+      },
+      { id: 'know-pan', label: 'Know Your PAN', labelHi: 'अपना पैन जानें', iconName: 'Eye', description: 'Retrieve your PAN number using name, DOB, and mobile OTP',
+        formFields: [
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true }
+        ],
+        requiredDocs: ['Name and Date of Birth as per PAN records', 'Registered mobile number']
+      },
+      { id: 'surrender-pan', label: 'Surrender Duplicate PAN', labelHi: 'डुप्लीकेट पैन सरेंडर', iconName: 'FileX', description: 'Surrender extra PAN cards — holding more than one PAN is illegal',
+        formFields: [
+          { name: 'panToRetain', label: 'PAN to Retain', type: 'text', placeholder: 'PAN number you want to keep active', required: true },
+          { name: 'panToSurrender', label: 'PAN to Surrender', type: 'text', placeholder: 'Duplicate PAN number to cancel', required: true },
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'reason', label: 'Reason for Duplicate', type: 'select', required: true, options: ['Applied multiple times', 'Allotted inadvertently', 'Other'] },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'duplicatePanCopy', label: 'Upload Copy of Duplicate PAN', type: 'file', required: true }
+        ],
+        requiredDocs: ['Copy of both PAN cards', 'Aadhaar Card', 'Letter to Assessing Officer requesting cancellation']
       }
     ],
     eligibility: ['Any Indian citizen', 'Individuals, companies, firms, and trusts', 'Foreign nationals with taxable income in India'],
@@ -340,125 +296,154 @@ export const documentsData: DocumentInfo[] = [
     category: 'Transport',
     iconName: 'Car',
     services: [
-      { 
-        id: 'learner-license', 
-        label: 'Apply Learner License', 
-        labelHi: 'लर्नर लाइसेंस', 
-        iconName: 'GraduationCap', 
-        description: 'Apply for a new Learner License (LL) at your RTO',
+      { id: 'learner-license', label: 'Apply Learner License', labelHi: 'लर्नर लाइसेंस', iconName: 'GraduationCap', description: 'Apply for a new Learner License (LL) at your RTO',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'category', label: 'Vehicle Category', type: 'select', required: true, options: ['Two-Wheeler', 'Light Motor Vehicle (LMV)', 'Heavy Motor Vehicle (HMV)', 'Transport'] },
-          { name: 'idProof', label: 'Upload ID Proof', type: 'file', required: true },
-          { name: 'addressProof', label: 'Upload Address Proof', type: 'file', required: true },
-          { name: 'drivingTestSlot', label: 'Preferred Test Date', type: 'date', required: false }
-        ]
+          { name: 'fullName', label: 'Full Name (as per Age Proof)', type: 'text', placeholder: 'e.g. Priya Sharma', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'fatherName', label: "Father's / Guardian's Name", type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile number', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Present Address', type: 'textarea', placeholder: 'House No., Street, City, District, State, PIN', required: true },
+          { name: 'state', label: 'State', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'rto', label: 'RTO Office', type: 'text', placeholder: 'Nearest RTO code / name', required: true },
+          { name: 'vehicleClass', label: 'Vehicle Class', type: 'select', required: true, options: ['Motor Cycle without Gear (MCWOG)', 'Motor Cycle with Gear (MCWG)', 'Light Motor Vehicle (LMV)', 'LMV – Non Transport'] },
+          { name: 'bloodGroup', label: 'Blood Group', type: 'select', required: true, options: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
+          { name: 'qualification', label: 'Educational Qualification', type: 'select', required: true, options: ['Illiterate', 'Below 8th', '8th Pass', '10th Pass', '12th Pass', 'Graduate', 'Post Graduate'] },
+          { name: 'ageProof', label: 'Upload Proof of Age (Form 2)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Passport-size Photograph', type: 'file', required: true },
+          { name: 'signature', label: 'Upload Signature', type: 'file', required: true },
+          { name: 'medicalSelfDecl', label: 'Upload Medical Self-Declaration (Form 1)', type: 'file', required: true }
+        ],
+        requiredDocs: ['Proof of Age — Birth certificate / SSC marksheet / PAN / Passport', 'Proof of Address — Aadhaar / Voter ID / Utility bill / Passport', 'Passport-size photographs (6 copies)', 'Medical Self-Declaration (Form 1)', 'Medical Certificate Form 1A (if age 40+ or Transport vehicle)']
       },
-      { 
-        id: 'new-dl', 
-        label: 'New Driving License', 
-        labelHi: 'नया DL', 
-        iconName: 'FilePlus', 
-        description: 'Apply for a permanent Driving License after passing the test',
+      { id: 'new-dl', label: 'New Driving License', labelHi: 'नया DL', iconName: 'FilePlus', description: 'Apply for a permanent Driving License after passing the test',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'llNumber', label: 'Learner License Number', type: 'text', placeholder: 'Your LL number', required: true },
-          { name: 'llExpiryDate', label: 'LL Expiry Date', type: 'date', required: true },
-          { name: 'vehicleClass', label: 'Vehicle Class', type: 'select', required: true, options: ['Two-Wheeler', 'Light Motor Vehicle (LMV)', 'Heavy Motor Vehicle (HMV)', 'Transport'] },
-          { name: 'medicalCert', label: 'Upload Medical Certificate', type: 'file', required: true },
-          { name: 'addressProof', label: 'Upload Address Proof', type: 'file', required: true },
-          { name: 'testPassed', label: 'Driving Test Passed (Date)', type: 'date', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'As per Learner License', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'llNumber', label: 'Learner License Number', type: 'text', placeholder: 'Valid LL number (held for 30+ days)', required: true },
+          { name: 'llIssueDate', label: 'LL Issue Date', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Present Address', type: 'textarea', placeholder: 'House No., Street, City, District, State, PIN', required: true },
+          { name: 'vehicleClass', label: 'Vehicle Class (Form 4)', type: 'select', required: true, options: ['MCWOG', 'MCWG', 'LMV', 'LMV – Non Transport', 'HMV', 'Transport'] },
+          { name: 'rtoCode', label: 'RTO Code', type: 'text', placeholder: 'e.g. DL-1, MH-02', required: true },
+          { name: 'bloodGroup', label: 'Blood Group', type: 'select', required: true, options: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
+          { name: 'llCopy', label: 'Upload Learner License Copy', type: 'file', required: true },
+          { name: 'ageProof', label: 'Upload Proof of Age', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'medicalCert', label: 'Upload Medical Certificate (Form 1A)', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Passport-size Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Valid Learner License (held for minimum 30 days, max 6 months)', 'Application Form 4 (for DL)', 'Proof of Age — Birth certificate / SSC marksheet / Passport', 'Proof of Address — Aadhaar / Voter ID / Utility bill', 'Medical Certificate (Form 1A) — mandatory for age 40+ or transport', '6 passport-size photographs', 'Driving school certificate (if applicable)']
       },
-      { 
-        id: 'renewal', 
-        label: 'Renewal', 
-        labelHi: 'नवीनीकरण', 
-        iconName: 'RefreshCw', 
-        description: 'Renew your expired or expiring Driving License',
+      { id: 'renewal', label: 'Renewal', labelHi: 'नवीनीकरण', iconName: 'RefreshCw', description: 'Renew your expired or expiring Driving License',
         formFields: [
-          { name: 'dlNumber', label: 'Current Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
-          { name: 'dlExpiryDate', label: 'Current DL Expiry Date', type: 'date', required: true },
-          { name: 'newValidityPeriod', label: 'New Validity Period', type: 'select', required: true, options: ['3 Years', '5 Years', '10 Years'] },
-          { name: 'medicalCert', label: 'Medical Certificate (if 15+ years old vehicle)', type: 'file', required: false }
-        ]
+          { name: 'fullName', label: 'Full Name (as per DL)', type: 'text', required: true },
+          { name: 'dlNumber', label: 'Existing DL Number', type: 'text', placeholder: 'e.g. DL-0120180012345', required: true },
+          { name: 'dlExpiryDate', label: 'DL Expiry Date', type: 'date', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Current Address', type: 'textarea', placeholder: 'House No., Street, City, State, PIN', required: true },
+          { name: 'vehicleClass', label: 'Vehicle Class on DL', type: 'select', required: true, options: ['MCWOG', 'MCWG', 'LMV', 'HMV', 'Transport', 'Multiple'] },
+          { name: 'originalDL', label: 'Upload Original DL Copy (Form 9)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'medicalCert', label: 'Upload Medical Certificate (Form 1A)', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Application Form 9 (Renewal of Driving Licence)', 'Original Driving License', 'Proof of Address — Aadhaar / Voter ID / Utility bill', 'Medical Certificate (Form 1A)', 'Passport-size photographs', 'Note: Apply up to 1 year before or after expiry']
       },
-      { 
-        id: 'duplicate', 
-        label: 'Duplicate License', 
-        labelHi: 'डुप्लीकेट DL', 
-        iconName: 'Copy', 
-        description: 'Apply for a duplicate DL if original is lost or damaged',
+      { id: 'duplicate', label: 'Duplicate License', labelHi: 'डुप्लीकेट DL', iconName: 'Copy', description: 'Apply for a duplicate DL if original is lost or damaged',
         formFields: [
-          { name: 'dlNumber', label: 'Original Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
-          { name: 'lossReason', label: 'Reason (Lost / Damaged / Stolen)', type: 'select', required: true, options: ['Lost', 'Damaged', 'Stolen', 'Other'] },
-          { name: 'fir', label: 'FIR Number (if stolen)', type: 'text', placeholder: 'FIR from police', required: false },
-          { name: 'deliveryAddress', label: 'Updated Delivery Address (if changed)', type: 'textarea', placeholder: 'Leave blank if same', required: false }
-        ]
+          { name: 'fullName', label: 'Full Name (as per DL)', type: 'text', required: true },
+          { name: 'dlNumber', label: 'Lost / Damaged DL Number', type: 'text', placeholder: 'Enter your DL number', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'reason', label: 'Reason for Duplicate', type: 'select', required: true, options: ['Lost', 'Stolen', 'Damaged / Mutilated'] },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'address', label: 'Current Address', type: 'textarea', required: true },
+          { name: 'firCopy', label: 'Upload FIR Copy (if lost/stolen)', type: 'file', required: false },
+          { name: 'affidavit', label: 'Upload Affidavit (Form LLD)', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload Proof of Identity', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Passport-size Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Application Form LLD (Duplicate Licence)', 'FIR copy from police station (if lost / stolen)', 'Notarized affidavit stating reason for duplicate', 'Proof of Identity — Aadhaar / Voter ID / Passport', 'Proof of Address — Aadhaar / Utility bill', 'Passport-size photographs', 'Copy of original DL (if available)']
       },
-      { 
-        id: 'international', 
-        label: 'International Driving Permit', 
-        labelHi: 'अंतरराष्ट्रीय परमिट', 
-        iconName: 'Globe', 
-        description: 'Apply for an IDP for driving abroad',
+      { id: 'international', label: 'International Driving Permit', labelHi: 'अंतरराष्ट्रीय परमिट', iconName: 'Globe', description: 'Apply for an IDP for driving abroad',
         formFields: [
-          { name: 'dlNumber', label: 'Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
-          { name: 'destination', label: 'Destination Country/Countries', type: 'text', placeholder: 'Where do you plan to drive?', required: true },
-          { name: 'travelDates', label: 'Travel Dates', type: 'text', placeholder: 'From - To dates', required: true },
-          { name: 'photo', label: 'Upload Photograph', type: 'file', required: true },
-          { name: 'dlCopy', label: 'Copy of Driving License', type: 'file', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name (as per Passport)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'dlNumber', label: 'Valid Indian DL Number', type: 'text', required: true },
+          { name: 'dlExpiryDate', label: 'DL Expiry Date', type: 'date', required: true },
+          { name: 'passportNumber', label: 'Passport Number', type: 'text', placeholder: 'e.g. A1234567', required: true },
+          { name: 'passportExpiry', label: 'Passport Expiry Date', type: 'date', required: true },
+          { name: 'visaType', label: 'Visa Type', type: 'text', placeholder: 'e.g. Tourist, Work, Student', required: true },
+          { name: 'destinationCountry', label: 'Destination Country', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'address', label: 'Permanent Address', type: 'textarea', required: true },
+          { name: 'dlCopy', label: 'Upload Valid DL Copy', type: 'file', required: true },
+          { name: 'passportCopy', label: 'Upload Passport Copy (first & last page)', type: 'file', required: true },
+          { name: 'visaCopy', label: 'Upload Visa Copy', type: 'file', required: true },
+          { name: 'airTicket', label: 'Upload Confirmed Air Ticket', type: 'file', required: false },
+          { name: 'photo', label: 'Upload Passport-size Photographs', type: 'file', required: true },
+          { name: 'medicalCert', label: 'Upload Medical Certificate (Form 1A)', type: 'file', required: true }
+        ],
+        requiredDocs: ['Application Form 4A (International Driving Permit)', 'Valid Indian Driving License', 'Valid Indian Passport (with min. 6 months validity)', 'Valid Visa for destination country', 'Confirmed air ticket (some RTOs require)', 'Medical Certificate (Form 1A)', 'Passport-size photographs (4 copies)', 'Note: IDP is valid for 1 year only']
       },
-      { 
-        id: 'address-change', 
-        label: 'Change of Address', 
-        labelHi: 'पता परिवर्तन', 
-        iconName: 'MapPin', 
-        description: 'Update your address on the Driving License',
+      { id: 'address-change', label: 'Change of Address', labelHi: 'पता परिवर्तन', iconName: 'MapPin', description: 'Update your address on the Driving License',
         formFields: [
-          { name: 'dlNumber', label: 'Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
+          { name: 'fullName', label: 'Full Name (as per DL)', type: 'text', required: true },
+          { name: 'dlNumber', label: 'DL Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'oldAddress', label: 'Old Address (as on DL)', type: 'textarea', required: true },
           { name: 'newAddress', label: 'New Address', type: 'textarea', placeholder: 'House No., Street, City, State, PIN', required: true },
-          { name: 'addressProof', label: 'Upload New Address Proof', type: 'file', required: true }
-        ]
+          { name: 'addressProof', label: 'Upload New Address Proof', type: 'file', required: true },
+          { name: 'dlCopy', label: 'Upload Current DL Copy', type: 'file', required: true }
+        ],
+        requiredDocs: ['Existing Driving License', 'Proof of New Address — Aadhaar / Utility bill / Rent agreement / Bank passbook', 'Passport-size photograph']
       },
-      { 
-        id: 'add-endorsement', 
-        label: 'Add Vehicle Class (AEDL)', 
-        labelHi: 'वाहन श्रेणी जोड़ें', 
-        iconName: 'ListPlus', 
-        description: 'Add a new vehicle class endorsement to your existing DL',
+      { id: 'add-endorsement', label: 'Add Vehicle Class (AEDL)', labelHi: 'वाहन श्रेणी जोड़ें', iconName: 'ListPlus', description: 'Add a new vehicle class endorsement to your existing DL',
         formFields: [
-          { name: 'dlNumber', label: 'Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
-          { name: 'newCategory', label: 'Vehicle Category to Add', type: 'select', required: true, options: ['Two-Wheeler', 'Light Motor Vehicle (LMV)', 'Heavy Motor Vehicle (HMV)', 'Transport', 'Taxi'] },
-          { name: 'medicalCert', label: 'Medical Certificate', type: 'file', required: true },
-          { name: 'testPassProof', label: 'Driving Test Pass Certificate', type: 'file', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'dlNumber', label: 'Existing DL Number', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'existingClass', label: 'Current Vehicle Class', type: 'select', required: true, options: ['MCWOG', 'MCWG', 'LMV', 'LMV-NT'] },
+          { name: 'newClass', label: 'Additional Vehicle Class to Add', type: 'select', required: true, options: ['MCWG', 'LMV', 'LMV – Non Transport', 'HMV', 'HGMV', 'Transport'] },
+          { name: 'address', label: 'Address', type: 'textarea', required: true },
+          { name: 'dlCopy', label: 'Upload Current DL Copy', type: 'file', required: true },
+          { name: 'medicalCert', label: 'Upload Medical Certificate (Form 1A)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Existing Driving License', 'Application for Additional Endorsement (AEDL)', 'Medical Certificate (Form 1A) — for HMV / Transport', 'Proof of Address', 'Passport-size photographs', 'Must pass driving test for new vehicle class at RTO']
       },
-      { 
-        id: 'dl-extract', 
-        label: 'Extract of DL', 
-        labelHi: 'DL उद्धरण', 
-        iconName: 'FileOutput', 
-        description: 'Obtain a certified extract/printout of your Driving License',
+      { id: 'dl-extract', label: 'Extract of DL', labelHi: 'DL उद्धरण', iconName: 'FileOutput', description: 'Obtain a certified extract/printout of your Driving License',
         formFields: [
-          { name: 'dlNumber', label: 'Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
-          { name: 'purpose', label: 'Purpose of Extract', type: 'select', required: true, options: ['Loan Application', 'Insurance', 'Court Case', 'Other'] },
-          { name: 'quantity', label: 'Number of Copies', type: 'select', required: true, options: ['1', '2', '3', '5'] }
-        ]
+          { name: 'dlNumber', label: 'DL Number', type: 'text', placeholder: 'Enter your DL number', required: true },
+          { name: 'fullName', label: 'Full Name (as per DL)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'purpose', label: 'Purpose of Extract', type: 'select', required: true, options: ['Employment', 'Insurance', 'Legal Proceedings', 'Personal Records', 'Other'] }
+        ],
+        requiredDocs: ['DL Number', 'Proof of Identity — Aadhaar / Voter ID', 'Application for DL Extract']
       },
-      { 
-        id: 'surrender-dl', 
-        label: 'Surrender DL', 
-        labelHi: 'DL सरेंडर', 
-        iconName: 'FileX', 
-        description: 'Surrender your Driving License upon cancellation or disqualification',
+      { id: 'surrender-dl', label: 'Surrender DL', labelHi: 'DL सरेंडर', iconName: 'FileX', description: 'Surrender your Driving License upon cancellation or disqualification',
         formFields: [
-          { name: 'dlNumber', label: 'Driving License Number', type: 'text', placeholder: 'Your DL number', required: true },
-          { name: 'surrenderReason', label: 'Reason for Surrender', type: 'select', required: true, options: ['Disqualification', 'Cancellation', 'Retirement', 'Medical Reasons', 'Other'] },
-          { name: 'legalNotice', label: 'Court Order / Legal Notice (if applicable)', type: 'file', required: false },
-          { name: 'remarks', label: 'Additional Remarks', type: 'textarea', placeholder: 'Provide any additional information', required: false }
-        ]
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'dlNumber', label: 'DL Number to Surrender', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'reason', label: 'Reason for Surrender', type: 'select', required: true, options: ['Cancellation by Authority', 'Court Order / Disqualification', 'Voluntary Surrender', 'Obtained DL from Another Country'] },
+          { name: 'address', label: 'Address', type: 'textarea', required: true },
+          { name: 'dlOriginal', label: 'Upload Original DL Copy', type: 'file', required: true },
+          { name: 'courtOrder', label: 'Upload Court Order / Authority Letter (if applicable)', type: 'file', required: false },
+          { name: 'idProof', label: 'Upload Proof of Identity', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Driving License', 'Court Order or Authority cancellation letter (if applicable)', 'Proof of Identity — Aadhaar / Voter ID / Passport', 'Application for Surrender of DL']
       }
     ],
     eligibility: ['Minimum age: 16 (geared motorcycle), 18 (car/commercial)', 'Must hold a valid Learner License', 'Must pass the driving test at RTO'],
@@ -493,106 +478,114 @@ export const documentsData: DocumentInfo[] = [
     category: 'Identity',
     iconName: 'BadgeCheck',
     services: [
-      { 
-        id: 'new-registration', 
-        label: 'New Registration (Form 6)', 
-        labelHi: 'नया पंजीकरण', 
-        iconName: 'UserPlus', 
-        description: 'Register as a new voter in the electoral roll',
+      { id: 'new-registration', label: 'New Registration (Form 6)', labelHi: 'नया पंजीकरण', iconName: 'UserPlus', description: 'Register as a new voter in the electoral roll',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'constituency', label: 'Constituency / Assembly', type: 'text', placeholder: 'Your area constituency', required: true },
-          { name: 'pollingStation', label: 'Polling Station Area', type: 'text', placeholder: 'Your polling station', required: true },
-          { name: 'photo', label: 'Upload Photograph', type: 'file', required: true },
-          { name: 'ageProof', label: 'Upload Age Proof', type: 'file', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name (as per ID proof)', type: 'text', placeholder: 'e.g. Anjali Verma', required: true },
+          { name: 'relationType', label: 'Relation Type', type: 'select', required: true, options: ['Father', 'Mother', 'Husband'] },
+          { name: 'relativeName', label: "Father's / Mother's / Husband's Name", type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Third Gender'] },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile number', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Present Address', type: 'textarea', placeholder: 'House No., Street, Locality, City, District, State, PIN', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'constituency', label: 'Assembly Constituency', type: 'text', placeholder: 'Your area constituency', required: true },
+          { name: 'pollingBooth', label: 'Polling Booth (if known)', type: 'text', placeholder: 'Optional', required: false },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number (optional)', type: 'text', placeholder: '12-digit Aadhaar (voluntary)', required: false },
+          { name: 'photo', label: 'Upload Recent Passport-size Photograph', type: 'file', required: true },
+          { name: 'ageProof', label: 'Upload Proof of Age', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 6 (New Voter Registration)', 'Proof of Age — Birth certificate / 10th marksheet / PAN / Passport / Aadhaar', 'Proof of Address — Aadhaar / Utility bill / Bank passbook / Rent agreement', 'Recent passport-size colour photograph (white background)', 'Aadhaar number (voluntary, for authentication)']
       },
-      { 
-        id: 'correction', 
-        label: 'Correction (Form 8)', 
-        labelHi: 'सुधार', 
-        iconName: 'Edit', 
-        description: 'Correct your name, DOB, photo, or address on Voter ID',
+      { id: 'correction', label: 'Correction (Form 8)', labelHi: 'सुधार', iconName: 'Edit', description: 'Correct your name, DOB, photo, or address on Voter ID',
         formFields: [
-          { name: 'epicNumber', label: 'EPIC / Voter ID Number', type: 'text', placeholder: 'Your voter ID', required: true },
-          { name: 'fieldToCorrect', label: 'Field to Correct', type: 'select', required: true, options: ['Name', 'Date of Birth', 'Address', 'Photo', 'Gender'] },
-          { name: 'newValue', label: 'Corrected Value', type: 'text', placeholder: 'Enter correct value', required: true },
-          { name: 'proof', label: 'Proof Document', type: 'file', required: true }
-        ]
+          { name: 'epicNumber', label: 'EPIC Number (Voter ID Number)', type: 'text', placeholder: 'e.g. ABC1234567', required: true },
+          { name: 'fullName', label: 'Full Name (current on card)', type: 'text', required: true },
+          { name: 'correctionField', label: 'Field to Correct', type: 'select', required: true, options: ['Name', 'Date of Birth', 'Gender', 'Address', 'Photo', 'Relative Name', 'EPIC Number Correction'] },
+          { name: 'correctedValue', label: 'Corrected / New Value', type: 'text', placeholder: 'Enter the correct value', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'constituency', label: 'Assembly Constituency', type: 'text', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document for Correction', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph (if changing photo)', type: 'file', required: false }
+        ],
+        requiredDocs: ['Form 8 (Correction of Particulars)', 'Existing Voter ID (EPIC) card', 'Supporting document for correction — Name: Aadhaar/Passport; DOB: Birth cert/Marksheet; Address: Utility bill', 'Recent passport-size photograph (if photo correction)']
       },
-      { 
-        id: 'transfer', 
-        label: 'Transfer / Shift (Form 8)', 
-        labelHi: 'स्थानांतरण', 
-        iconName: 'ArrowRightLeft', 
-        description: 'Transfer your voter registration when moving address',
+      { id: 'transfer', label: 'Transfer / Shift (Form 8)', labelHi: 'स्थानांतरण', iconName: 'ArrowRightLeft', description: 'Transfer your voter registration when moving address',
         formFields: [
-          { name: 'epicNumber', label: 'EPIC / Voter ID Number', type: 'text', placeholder: 'Your voter ID', required: true },
-          { name: 'oldConstituency', label: 'Old Constituency', type: 'text', placeholder: 'Previous constituency', required: true },
-          { name: 'newAddress', label: 'New Address', type: 'textarea', placeholder: 'Full new address', required: true },
-          { name: 'newConstituency', label: 'New Constituency', type: 'text', placeholder: 'New constituency area', required: true },
-          { name: 'addressProof', label: 'New Address Proof', type: 'file', required: true }
-        ]
+          { name: 'epicNumber', label: 'EPIC Number', type: 'text', required: true },
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'shiftType', label: 'Type of Shift', type: 'select', required: true, options: ['Within Same Constituency', 'To Different Constituency (Same State)', 'To Different State'] },
+          { name: 'oldAddress', label: 'Old Address (as on Voter ID)', type: 'textarea', required: true },
+          { name: 'newAddress', label: 'New Address', type: 'textarea', placeholder: 'House No., Street, Locality, City, State, PIN', required: true },
+          { name: 'newConstituency', label: 'New Assembly Constituency', type: 'text', required: true },
+          { name: 'newState', label: 'New State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'addressProof', label: 'Upload New Address Proof', type: 'file', required: true },
+          { name: 'epicCopy', label: 'Upload Existing EPIC Copy', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 8 (Transposition / Shifting)', 'Existing Voter ID (EPIC) card', 'Proof of New Address — Aadhaar / Utility bill / Rent agreement / Bank passbook', 'Passport-size photograph']
       },
-      { 
-        id: 'download-epic', 
-        label: 'Download e-EPIC', 
-        labelHi: 'ई-EPIC डाउनलोड', 
-        iconName: 'Download', 
-        description: 'Download a digital copy of your Voter ID card',
+      { id: 'download-epic', label: 'Download e-EPIC', labelHi: 'ई-EPIC डाउनलोड', iconName: 'Download', description: 'Download a digital copy of your Voter ID card',
         formFields: [
-          { name: 'epicNumber', label: 'EPIC / Voter ID Number', type: 'text', placeholder: 'Your voter ID', required: true },
-          { name: 'dob', label: 'Date of Birth', type: 'date', required: true }
-        ]
+          { name: 'searchBy', label: 'Search By', type: 'select', required: true, options: ['EPIC Number', 'Form Reference Number'] },
+          { name: 'epicNumber', label: 'EPIC Number / Reference Number', type: 'text', placeholder: 'Enter your EPIC or reference number', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent here', required: true }
+        ],
+        requiredDocs: ['EPIC Number or Form Reference Number', 'Registered mobile number for OTP verification', 'Note: e-EPIC is a digitally signed PDF available on voters.eci.gov.in']
       },
-      { 
-        id: 'deletion', 
-        label: 'Deletion (Form 7)', 
-        labelHi: 'विलोपन', 
-        iconName: 'Trash2', 
-        description: 'Request deletion of a name from the electoral roll',
+      { id: 'deletion', label: 'Deletion (Form 7)', labelHi: 'विलोपन', iconName: 'Trash2', description: 'Request deletion of a name from the electoral roll',
         formFields: [
-          { name: 'epicNumber', label: 'EPIC / Voter ID Number', type: 'text', placeholder: 'Your voter ID', required: true },
-          { name: 'deletionReason', label: 'Reason for Deletion', type: 'select', required: true, options: ['Moved to Another Country', 'Deceased', 'Incorrect Entry', 'Other'] },
-          { name: 'supportingDoc', label: 'Supporting Document', type: 'file', required: true }
-        ]
+          { name: 'applicantName', label: 'Applicant Name (person requesting deletion)', type: 'text', required: true },
+          { name: 'applicantEpic', label: "Applicant's EPIC Number", type: 'text', required: true },
+          { name: 'deletionName', label: 'Name to be Deleted', type: 'text', required: true },
+          { name: 'deletionEpic', label: 'EPIC Number of Person to Delete', type: 'text', placeholder: 'If known', required: false },
+          { name: 'reason', label: 'Reason for Deletion', type: 'select', required: true, options: ['Deceased', 'Shifted Permanently', 'Not Ordinarily Resident', 'Duplicate Entry', 'Other'] },
+          { name: 'constituency', label: 'Assembly Constituency', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 7 (Objection for Inclusion / Deletion)', 'Death certificate (if deceased)', 'Proof that person has shifted (if applicable)', 'EPIC number of the person to be deleted (if available)']
       },
-      { 
-        id: 'electoral-search', 
-        label: 'Electoral Roll Search', 
-        labelHi: 'मतदाता सूची खोजें', 
-        iconName: 'Search', 
-        description: 'Search your name in the electoral roll online via voters.eci.gov.in',
+      { id: 'electoral-search', label: 'Electoral Roll Search', labelHi: 'मतदाता सूची खोजें', iconName: 'Search', description: 'Search your name in the electoral roll online via voters.eci.gov.in',
         formFields: [
-          { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'Your name', required: true },
-          { name: 'constituency', label: 'Constituency', type: 'text', placeholder: 'Your constituency', required: true },
-          { name: 'dob', label: 'Date of Birth', type: 'date', required: false }
-        ]
+          { name: 'searchType', label: 'Search By', type: 'select', required: true, options: ['Name Details', 'EPIC Number'] },
+          { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'Enter your name', required: true },
+          { name: 'fatherName', label: "Father's / Husband's Name", type: 'text', required: false },
+          { name: 'dob', label: 'Date of Birth / Age', type: 'date', required: false },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'constituency', label: 'Assembly Constituency', type: 'text', required: false }
+        ],
+        requiredDocs: ['Name and basic details OR EPIC number', 'State and constituency information', 'Note: Search at voters.eci.gov.in or Voter Helpline App']
       },
-      { 
-        id: 'blo-details', 
-        label: 'BLO / ERO Details', 
-        labelHi: 'BLO / ERO विवरण', 
-        iconName: 'MapPin', 
-        description: 'Find your Booth Level Officer and Electoral Registration Officer',
+      { id: 'blo-details', label: 'BLO / ERO Details', labelHi: 'BLO / ERO विवरण', iconName: 'MapPin', description: 'Find your Booth Level Officer and Electoral Registration Officer',
         formFields: [
-          { name: 'constituency', label: 'Constituency', type: 'text', placeholder: 'Your constituency', required: true },
-          { name: 'state', label: 'State', type: 'text', placeholder: 'Your state', required: true }
-        ]
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'constituency', label: 'Assembly Constituency', type: 'text', required: true },
+          { name: 'epicNumber', label: 'EPIC Number (optional)', type: 'text', placeholder: 'Helps identify your polling booth', required: false }
+        ],
+        requiredDocs: ['State and Assembly Constituency information', 'EPIC number (optional, for booth-level identification)']
       },
-      { 
-        id: 'overseas-voter', 
-        label: 'Overseas Registration (6A)', 
-        labelHi: 'विदेशी मतदाता पंजीकरण', 
-        iconName: 'Globe', 
-        description: 'Register as an overseas Indian voter using Form 6A',
+      { id: 'overseas-voter', label: 'Overseas Registration (6A)', labelHi: 'विदेशी मतदाता पंजीकरण', iconName: 'Globe', description: 'Register as an overseas Indian voter using Form 6A',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'countryOfResidence', label: 'Country of Residence', type: 'text', placeholder: 'Where do you live?', required: true },
-          { name: 'indianConstituency', label: 'Indian Constituency (Last residence)', type: 'text', placeholder: 'Where you last lived in India', required: true },
-          { name: 'passport', label: 'Passport Number', type: 'text', required: true },
-          { name: 'passportCopy', label: 'Passport Copy', type: 'file', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name (as per Passport)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Third Gender'] },
+          { name: 'fatherName', label: "Father's Name", type: 'text', required: true },
+          { name: 'passportNumber', label: 'Indian Passport Number', type: 'text', required: true },
+          { name: 'passportExpiry', label: 'Passport Expiry Date', type: 'date', required: true },
+          { name: 'countryOfResidence', label: 'Country of Current Residence', type: 'text', required: true },
+          { name: 'foreignAddress', label: 'Address Abroad', type: 'textarea', required: true },
+          { name: 'indiaAddress', label: 'Last Address in India', type: 'textarea', placeholder: 'Your constituency address in India', required: true },
+          { name: 'constituency', label: 'Assembly Constituency (India)', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'passportCopy', label: 'Upload Indian Passport Copy', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 6A (Overseas Voter Registration)', 'Valid Indian Passport', 'Proof of Indian address (last residential address)', 'Recent passport-size photograph', 'Note: Only Indian citizens residing abroad are eligible']
       }
     ],
     eligibility: ['Indian citizen', 'Minimum age: 18 years on qualifying date (Jan 1)', 'Resident of the constituency'],
@@ -625,117 +618,144 @@ export const documentsData: DocumentInfo[] = [
     category: 'Identity',
     iconName: 'Plane',
     services: [
-      { 
-        id: 'fresh-passport', 
-        label: 'Fresh Passport', 
-        labelHi: 'नया पासपोर्ट', 
-        iconName: 'FilePlus', 
-        description: 'Apply for a brand new Indian passport',
+      { id: 'fresh-passport', label: 'Fresh Passport', labelHi: 'नया पासपोर्ट', iconName: 'FilePlus', description: 'Apply for a brand new Indian passport',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'fatherName', label: "Father's Name", type: 'text', required: true },
-          { name: 'motherName', label: "Mother's Name", type: 'text', required: true },
-          { name: 'maritalStatus', label: 'Marital Status', type: 'select', required: true, options: ['Single', 'Married', 'Divorced', 'Widowed'] },
-          { name: 'passportType', label: 'Passport Type', type: 'select', required: true, options: ['Normal', 'Tatkal'] },
-          { name: 'bookletPages', label: 'Booklet Pages', type: 'select', required: true, options: ['36 Pages', '60 Pages'] },
-          { name: 'dobProof', label: 'Upload DOB Proof', type: 'file', required: true },
-          { name: 'addressProof', label: 'Upload Address Proof', type: 'file', required: true },
-          { name: 'photo', label: 'Upload Photograph', type: 'file', required: true }
-        ]
+          { name: 'applicationType', label: 'Application Type', type: 'select', required: true, options: ['Normal', 'Tatkal'] },
+          { name: 'bookletType', label: 'Booklet Type', type: 'select', required: true, options: ['36 Pages', '60 Pages'] },
+          { name: 'fullName', label: 'Full Name (Given Name)', type: 'text', placeholder: 'As per birth certificate / school records', required: true },
+          { name: 'surname', label: 'Surname', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'placeOfBirth', label: 'Place of Birth', type: 'text', placeholder: 'City, District, State', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'maritalStatus', label: 'Marital Status', type: 'select', required: true, options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'] },
+          { name: 'fatherName', label: "Father's Full Name", type: 'text', required: true },
+          { name: 'motherName', label: "Mother's Full Name", type: 'text', required: true },
+          { name: 'spouseName', label: "Spouse's Name (if married)", type: 'text', required: false },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar (mandatory)', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Present Residential Address', type: 'textarea', placeholder: 'House No., Street, City, District, State, PIN', required: true },
+          { name: 'emergencyContact', label: 'Emergency Contact Name & Number', type: 'text', placeholder: 'Name — Mobile number', required: true },
+          { name: 'ecrStatus', label: 'ECR / ECNR', type: 'select', required: true, options: ['ECR (Emigration Check Required)', 'ECNR (Not Required — 10th pass & above)'] },
+          { name: 'dobProof', label: 'Upload Proof of Date of Birth', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload Proof of Identity', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph (white background)', type: 'file', required: true }
+        ],
+        requiredDocs: ['Proof of Date of Birth — Birth certificate (mandatory if born after 26/01/1989) / Marksheet / PAN', 'Proof of Address — Aadhaar / Voter ID / Utility bill / Bank statement / Rent agreement', 'Proof of Identity — Aadhaar / PAN / Voter ID', 'Aadhaar Card (mandatory for all applicants)', 'Recent passport-size photograph (white background, 3.5×3.5 cm)', 'Self-declaration in Annexure D/E (for government employees)']
       },
-      { 
-        id: 'renewal', 
-        label: 'Passport Renewal', 
-        labelHi: 'पासपोर्ट नवीनीकरण', 
-        iconName: 'RefreshCw', 
-        description: 'Renew your expired or expiring passport',
+      { id: 'renewal', label: 'Passport Renewal', labelHi: 'पासपोर्ट नवीनीकरण', iconName: 'RefreshCw', description: 'Renew your expired or expiring passport',
         formFields: [
-          { name: 'passportNumber', label: 'Current Passport Number', type: 'text', placeholder: '8-character passport', required: true },
-          { name: 'passportExpiryDate', label: 'Expiry Date', type: 'date', required: true },
-          { name: 'renewalType', label: 'Renewal Type', type: 'select', required: true, options: ['Normal (50 pages)', 'Tatkal', 'Extended (60 pages)'] },
-          { name: 'detailsChanged', label: 'Have your details changed?', type: 'select', required: true, options: ['No', 'Yes - Name', 'Yes - Address', 'Yes - Other'] },
-          { name: 'oldPassport', label: 'Old Passport Copy', type: 'file', required: true }
-        ]
+          { name: 'oldPassportNumber', label: 'Old Passport Number', type: 'text', placeholder: 'e.g. A1234567', required: true },
+          { name: 'oldPassportIssueDate', label: 'Old Passport Issue Date', type: 'date', required: true },
+          { name: 'oldPassportExpiryDate', label: 'Old Passport Expiry Date', type: 'date', required: true },
+          { name: 'oldPassportIssuePlace', label: 'Place of Issue', type: 'text', required: true },
+          { name: 'fullName', label: 'Full Name (as per old passport)', type: 'text', required: true },
+          { name: 'surname', label: 'Surname', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Current Address', type: 'textarea', required: true },
+          { name: 'bookletType', label: 'Booklet Type', type: 'select', required: true, options: ['36 Pages', '60 Pages'] },
+          { name: 'oldPassportCopy', label: 'Upload Old Passport Copy (first & last 2 pages)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original old passport', 'Self-attested photocopies of first 2 and last 2 pages of old passport (incl. ECR/ECNR & observation pages)', 'Proof of Address — Aadhaar / Utility bill / Voter ID', 'Aadhaar Card (mandatory)', 'Recent passport-size photograph']
       },
-      { 
-        id: 'reissue', 
-        label: 'Re-issue Passport', 
-        labelHi: 'पासपोर्ट पुनः जारी', 
-        iconName: 'RotateCw', 
-        description: 'Re-issue for exhausted pages, lost/damaged, or name/address change',
+      { id: 'reissue', label: 'Re-issue Passport', labelHi: 'पासपोर्ट पुनः जारी', iconName: 'RotateCw', description: 'Re-issue for exhausted pages, lost/damaged, or name/address change',
         formFields: [
-          { name: 'passportNumber', label: 'Current Passport Number', type: 'text', placeholder: '8-character passport', required: false },
-          { name: 'reissueReason', label: 'Reason for Re-issue', type: 'select', required: true, options: ['Pages Exhausted', 'Lost', 'Damaged', 'Name Change', 'Address Change', 'Other'] },
-          { name: 'detailedReason', label: 'Provide Details', type: 'textarea', placeholder: 'Explain the reason', required: true },
-          { name: 'supportingDoc', label: 'Supporting Document', type: 'file', required: true },
-          { name: 'photo', label: 'Updated Photograph', type: 'file', required: true }
-        ]
+          { name: 'reissueReason', label: 'Reason for Re-issue', type: 'select', required: true, options: ['Exhausted Pages', 'Lost Passport', 'Damaged Passport', 'Change in Name', 'Change in Address', 'Change in Appearance', 'Change due to Marriage'] },
+          { name: 'oldPassportNumber', label: 'Old Passport Number (if available)', type: 'text', placeholder: 'Enter if passport not lost', required: false },
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'newName', label: 'New Name (if name change)', type: 'text', required: false },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Address', type: 'textarea', required: true },
+          { name: 'firCopy', label: 'Upload FIR Copy (if lost/stolen)', type: 'file', required: false },
+          { name: 'oldPassportCopy', label: 'Upload Old Passport Copy (if available)', type: 'file', required: false },
+          { name: 'nameChangeProof', label: 'Upload Name Change Proof (if applicable)', type: 'file', required: false },
+          { name: 'marriageCert', label: 'Upload Marriage Certificate (if applicable)', type: 'file', required: false },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original old passport (if not lost)', 'FIR copy (mandatory if lost/stolen)', 'Proof of Address — Aadhaar / Utility bill', 'Aadhaar Card', 'Name change proof — Gazette notification / Court order / Marriage certificate (if name change)', 'Recent passport-size photograph', 'Annexure F — Affidavit for lost passport (if applicable)']
       },
-      { 
-        id: 'tatkal', 
-        label: 'Tatkal Passport', 
-        labelHi: 'तत्काल पासपोर्ट', 
-        iconName: 'Zap', 
-        description: 'Expedited passport processing (1-3 working days)',
+      { id: 'tatkal', label: 'Tatkal Passport', labelHi: 'तत्काल पासपोर्ट', iconName: 'Zap', description: 'Expedited passport processing (1-3 working days)',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
-          { name: 'urgencyReason', label: 'Reason for Urgency', type: 'select', required: true, options: ['Business Trip', 'Medical Emergency', 'Family Emergency', 'Immigration', 'Other'] },
-          { name: 'reasonDetails', label: 'Details of Urgency', type: 'textarea', placeholder: 'Explain why you need it urgently', required: true },
-          { name: 'travelDate', label: 'Travel Date', type: 'date', required: true },
-          { name: 'dobProof', label: 'DOB Proof', type: 'file', required: true },
-          { name: 'addressProof', label: 'Address Proof', type: 'file', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'surname', label: 'Surname', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'fatherName', label: "Father's Full Name", type: 'text', required: true },
+          { name: 'motherName', label: "Mother's Full Name", type: 'text', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Present Address', type: 'textarea', required: true },
+          { name: 'urgencyReason', label: 'Reason for Urgency', type: 'textarea', placeholder: 'Explain why Tatkal is needed', required: true },
+          { name: 'bookletType', label: 'Booklet Type', type: 'select', required: true, options: ['36 Pages', '60 Pages'] },
+          { name: 'verificationDoc1', label: 'Upload Verification Document 1', type: 'file', required: true },
+          { name: 'verificationDoc2', label: 'Upload Verification Document 2', type: 'file', required: true },
+          { name: 'verificationDoc3', label: 'Upload Verification Document 3', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Any 3 documents from: Aadhaar / PAN / Voter ID / DL / Birth Certificate / 10th Marksheet / Electricity bill / Water bill / ITR / Bank passbook', 'Aadhaar Card (mandatory)', 'Undertaking for Tatkal Scheme (signed at PSK)', 'Additional fee: ₹2,000 over normal fee', 'Note: Processing time 1–3 working days']
       },
-      { 
-        id: 'pcc', 
-        label: 'Police Clearance (PCC)', 
-        labelHi: 'पुलिस क्लियरेंस', 
-        iconName: 'ShieldCheck', 
-        description: 'Obtain a Police Clearance Certificate for emigration',
+      { id: 'pcc', label: 'Police Clearance (PCC)', labelHi: 'पुलिस क्लियरेंस', iconName: 'ShieldCheck', description: 'Obtain a Police Clearance Certificate for emigration',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'passportNumber', label: 'Passport Number', type: 'text', placeholder: '8-character passport', required: true },
-          { name: 'countryOfResidence', label: 'Countries of Residence (last 5 years)', type: 'textarea', placeholder: 'List all countries', required: true },
-          { name: 'purpose', label: 'Purpose of PCC', type: 'select', required: true, options: ['Immigration', 'Employment', 'Education', 'Other'] },
-          { name: 'policeStationJurisdiction', label: 'Police Station Jurisdiction', type: 'text', placeholder: 'Your local police station', required: true }
-        ]
+          { name: 'passportNumber', label: 'Passport Number', type: 'text', required: true },
+          { name: 'passportIssueDate', label: 'Passport Issue Date', type: 'date', required: true },
+          { name: 'fullName', label: 'Full Name (as per Passport)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Current Address', type: 'textarea', required: true },
+          { name: 'purpose', label: 'Purpose of PCC', type: 'select', required: true, options: ['Employment Abroad', 'Immigration / PR', 'Student Visa', 'Business', 'Other'] },
+          { name: 'destinationCountry', label: 'Destination Country', type: 'text', required: true },
+          { name: 'passportCopy', label: 'Upload Passport Copy (first & last 2 pages)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Current Address', type: 'file', required: true },
+          { name: 'purposeDoc', label: 'Upload Supporting Document (offer letter / visa / admission)', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Passport with self-attested copies (first & last 2 pages)', 'Proof of Current Address — Aadhaar / Utility bill', 'Supporting document for PCC purpose — Employment offer / Visa copy / Admission letter', 'Note: PCC is issued within 2–5 working days']
       },
-      { 
-        id: 'surrender', 
-        label: 'Surrender Certificate', 
-        labelHi: 'समर्पण प्रमाणपत्र', 
-        iconName: 'FileX', 
-        description: 'Surrender your Indian passport upon acquiring foreign citizenship',
+      { id: 'surrender', label: 'Surrender Certificate', labelHi: 'समर्पण प्रमाणपत्र', iconName: 'FileX', description: 'Surrender your Indian passport upon acquiring foreign citizenship',
         formFields: [
-          { name: 'passportNumber', label: 'Passport Number', type: 'text', placeholder: '8-character passport', required: true },
-          { name: 'newCitizenship', label: 'New Citizenship Country', type: 'text', placeholder: 'Country of new citizenship', required: true },
-          { name: 'certificateOfNaturalization', label: 'Certificate of Naturalization', type: 'file', required: true },
-          { name: 'surrenderReason', label: 'Reason for Surrender', type: 'textarea', placeholder: 'Explain your reason', required: true }
-        ]
+          { name: 'indianPassportNumber', label: 'Indian Passport Number', type: 'text', required: true },
+          { name: 'indianPassportIssueDate', label: 'Indian Passport Issue Date', type: 'date', required: true },
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'foreignCitizenship', label: 'Country of New Citizenship', type: 'text', required: true },
+          { name: 'foreignPassportNumber', label: 'Foreign Passport Number', type: 'text', required: true },
+          { name: 'dateOfNaturalization', label: 'Date of Naturalization / Citizenship Acquisition', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: true },
+          { name: 'address', label: 'Current Address', type: 'textarea', required: true },
+          { name: 'indianPassportCopy', label: 'Upload Original Indian Passport Copy', type: 'file', required: true },
+          { name: 'foreignPassportCopy', label: 'Upload Foreign Passport Copy', type: 'file', required: true },
+          { name: 'citizenshipCert', label: 'Upload Naturalization / Citizenship Certificate', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Indian Passport', 'Copy of Foreign Passport', 'Naturalization / Citizenship Certificate of the foreign country', 'Proof of Current Address', 'Note: Indian Passport must be surrendered within 3 years of acquiring foreign citizenship']
       },
-      { 
-        id: 'track-status', 
-        label: 'Track Application', 
-        labelHi: 'आवेदन ट्रैक', 
-        iconName: 'Search', 
-        description: 'Track passport application status using ARN',
+      { id: 'track-status', label: 'Track Application', labelHi: 'आवेदन ट्रैक', iconName: 'Search', description: 'Track passport application status using ARN',
         formFields: [
-          { name: 'arn', label: 'Application Reference Number (ARN)', type: 'text', placeholder: '9-digit ARN', required: true }
-        ]
+          { name: 'searchBy', label: 'Track By', type: 'select', required: true, options: ['Application Reference Number (ARN)', 'File Number'] },
+          { name: 'arnNumber', label: 'ARN / File Number', type: 'text', placeholder: 'Enter your application reference number', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true }
+        ],
+        requiredDocs: ['Application Reference Number (ARN) from passport application receipt', 'Date of Birth as provided in the application']
       },
-      { 
-        id: 'slot-availability', 
-        label: 'Check Slot Availability', 
-        labelHi: 'स्लॉट उपलब्धता', 
-        iconName: 'CalendarDays', 
-        description: 'Check PSK/POPSK appointment slot availability online',
+      { id: 'slot-availability', label: 'Check Slot Availability', labelHi: 'स्लॉट उपलब्धता', iconName: 'CalendarDays', description: 'Check PSK/POPSK appointment slot availability online',
         formFields: [
-          { name: 'state', label: 'Select State', type: 'text', placeholder: 'Your state', required: true },
-          { name: 'city', label: 'Select City', type: 'text', placeholder: 'Your city', required: true },
-          { name: 'pskCenter', label: 'Passport Seva Kendra', type: 'text', placeholder: 'PSK name', required: true }
-        ]
+          { name: 'state', label: 'State', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'pskType', label: 'Centre Type', type: 'select', required: true, options: ['Passport Seva Kendra (PSK)', 'Post Office Passport Seva Kendra (POPSK)', 'Passport Office (PO)'] },
+          { name: 'appointmentDate', label: 'Preferred Appointment Date', type: 'date', required: true },
+          { name: 'applicationType', label: 'Application Type', type: 'select', required: true, options: ['Normal – Fresh', 'Normal – Re-issue', 'Tatkal – Fresh', 'Tatkal – Re-issue', 'PCC'] }
+        ],
+        requiredDocs: ['Passport Seva account credentials', 'Note: Check slot availability on passportindia.gov.in after logging in']
       }
     ],
     eligibility: ['Indian citizen by birth / descent / registration / naturalization', 'No pending criminal proceedings (for normal passport)', 'Minors need parental consent'],
@@ -771,108 +791,112 @@ export const documentsData: DocumentInfo[] = [
     category: 'Welfare',
     iconName: 'ShoppingCart',
     services: [
-      { 
-        id: 'new-card', 
-        label: 'New Ration Card', 
-        labelHi: 'नया राशन कार्ड', 
-        iconName: 'FilePlus', 
-        description: 'Apply for a new ration card for your household',
+      { id: 'new-card', label: 'New Ration Card', labelHi: 'नया राशन कार्ड', iconName: 'FilePlus', description: 'Apply for a new ration card for your household',
         formFields: [
-          ...commonPersonalFields,
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', placeholder: 'As per Aadhaar', required: true },
+          { name: 'hofAadhaar', label: "Head of Family's Aadhaar Number", type: 'text', placeholder: '12-digit Aadhaar', required: true },
+          { name: 'dob', label: 'Date of Birth (Head of Family)', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Full Residential Address', type: 'textarea', placeholder: 'House No., Street, Village/Town, District, State, PIN', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
           { name: 'familyMembers', label: 'Number of Family Members', type: 'select', required: true, options: ['1', '2', '3', '4', '5', '6', '7', '8+'] },
-          { name: 'income', label: 'Annual Family Income (₹)', type: 'text', placeholder: 'e.g., 120000', required: true },
-          { name: 'category', label: 'Category', type: 'select', required: true, options: ['APL (Above Poverty Line)', 'BPL (Below Poverty Line)', 'AAY (Antyodaya Anna Yojana)'] },
-          { name: 'incomeCert', label: 'Upload Income Certificate', type: 'file', required: true }
-        ]
+          { name: 'cardCategory', label: 'Category Applied For', type: 'select', required: true, options: ['APL (Above Poverty Line)', 'BPL (Below Poverty Line)', 'AAY (Antyodaya Anna Yojana)', 'PHH (Priority Household)'] },
+          { name: 'annualIncome', label: 'Annual Family Income (₹)', type: 'text', placeholder: 'e.g. 80000', required: true },
+          { name: 'hofAadhaarDoc', label: "Upload Head of Family's Aadhaar", type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'incomeCert', label: 'Upload Income Certificate', type: 'file', required: true },
+          { name: 'hofPhoto', label: 'Upload Photograph of Head of Family', type: 'file', required: true }
+        ],
+        requiredDocs: ['Aadhaar Card of Head of Family (mandatory)', 'Aadhaar cards of all family members', 'Proof of Address — Utility bill / Voter ID / Rent agreement', 'Income Certificate from Tehsildar/SDM', 'Passport-size photographs of all family members', 'Self-declaration that family does not hold another ration card']
       },
-      { 
-        id: 'add-remove-member', 
-        label: 'Add / Remove Member', 
-        labelHi: 'सदस्य जोड़ें/हटाएँ', 
-        iconName: 'Users', 
-        description: 'Add or remove family members from existing ration card',
+      { id: 'add-remove-member', label: 'Add / Remove Member', labelHi: 'सदस्य जोड़ें/हटाएँ', iconName: 'Users', description: 'Add or remove family members from existing ration card',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'action', label: 'Action', type: 'select', required: true, options: ['Add Member', 'Remove Member'] },
-          { name: 'memberName', label: "Member's Name", type: 'text', placeholder: 'Full name', required: true },
-          { name: 'memberDOB', label: "Member's Date of Birth", type: 'date', required: true },
-          { name: 'relationshipToHead', label: 'Relationship to Head', type: 'select', required: true, options: ['Spouse', 'Child', 'Parent', 'Sibling', 'Other'] },
-          { name: 'supportingDoc', label: 'Supporting Document', type: 'file', required: true }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', required: true },
+          { name: 'actionType', label: 'Action', type: 'select', required: true, options: ['Add Member', 'Remove Member'] },
+          { name: 'memberName', label: 'Member Name (to Add/Remove)', type: 'text', required: true },
+          { name: 'memberAadhaar', label: "Member's Aadhaar Number", type: 'text', required: true },
+          { name: 'memberDob', label: "Member's Date of Birth", type: 'date', required: true },
+          { name: 'relation', label: 'Relation to Head of Family', type: 'select', required: true, options: ['Spouse', 'Son', 'Daughter', 'Father', 'Mother', 'Brother', 'Sister', 'Other'] },
+          { name: 'reason', label: 'Reason', type: 'select', required: true, options: ['Birth', 'Marriage', 'Death', 'Migration', 'Divorce', 'Other'] },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true },
+          { name: 'memberAadhaarDoc', label: "Upload Member's Aadhaar Card", type: 'file', required: true }
+        ],
+        requiredDocs: ['Existing Ration Card', "Member's Aadhaar Card", 'Birth Certificate (if adding newborn)', 'Marriage Certificate (if adding spouse)', 'Death Certificate (if removing deceased member)', 'Migration Certificate (if applicable)']
       },
-      { 
-        id: 'correction', 
-        label: 'Correction / Update', 
-        labelHi: 'सुधार / अपडेट', 
-        iconName: 'Edit', 
-        description: 'Correct name, address, or other details on ration card',
+      { id: 'correction', label: 'Correction / Update', labelHi: 'सुधार / अपडेट', iconName: 'Edit', description: 'Correct name, address, or other details on ration card',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'fieldToCorrect', label: 'Field to Correct', type: 'select', required: true, options: ['Name', 'Address', 'Family Income', 'Member Name', 'Contact Details'] },
-          { name: 'newValue', label: 'Corrected Value', type: 'text', placeholder: 'Enter correction', required: true },
-          { name: 'proof', label: 'Proof Document', type: 'file', required: true }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', required: true },
+          { name: 'correctionField', label: 'Field to Correct', type: 'select', required: true, options: ['Name of Member', 'Address', 'Date of Birth', 'Gender', 'Aadhaar Number', 'Mobile Number'] },
+          { name: 'currentValue', label: 'Current Value (incorrect)', type: 'text', required: true },
+          { name: 'correctedValue', label: 'Corrected Value', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true }
+        ],
+        requiredDocs: ['Existing Ration Card', 'Supporting document for correction — Aadhaar / Birth certificate / Utility bill', 'Application for correction addressed to Food Inspector']
       },
-      { 
-        id: 'duplicate', 
-        label: 'Duplicate Card', 
-        labelHi: 'डुप्लीकेट कार्ड', 
-        iconName: 'Copy', 
-        description: 'Apply for a duplicate if your card is lost or damaged',
+      { id: 'duplicate', label: 'Duplicate Card', labelHi: 'डुप्लीकेट कार्ड', iconName: 'Copy', description: 'Apply for a duplicate if your card is lost or damaged',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'lossReason', label: 'Reason (Lost / Damaged)', type: 'select', required: true, options: ['Lost', 'Damaged', 'Stolen'] },
-          { name: 'policeReport', label: 'Police Report (if stolen)', type: 'file', required: false }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', required: true },
+          { name: 'reason', label: 'Reason for Duplicate', type: 'select', required: true, options: ['Lost', 'Damaged / Torn', 'Stolen'] },
+          { name: 'hofAadhaar', label: "Head of Family's Aadhaar Number", type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'address', label: 'Address', type: 'textarea', required: true },
+          { name: 'firCopy', label: 'Upload FIR Copy (if lost/stolen)', type: 'file', required: false },
+          { name: 'affidavit', label: 'Upload Affidavit / Self-Declaration', type: 'file', required: true },
+          { name: 'hofAadhaarDoc', label: "Upload Head of Family's Aadhaar", type: 'file', required: true }
+        ],
+        requiredDocs: ['Ration Card Number', "Head of Family's Aadhaar Card", 'FIR copy (if lost/stolen)', 'Affidavit / Self-declaration on stamp paper', 'Passport-size photograph of Head of Family']
       },
-      { 
-        id: 'surrender', 
-        label: 'Surrender Card', 
-        labelHi: 'कार्ड सरेंडर', 
-        iconName: 'FileX', 
-        description: 'Surrender your ration card if no longer eligible',
+      { id: 'surrender', label: 'Surrender Card', labelHi: 'कार्ड सरेंडर', iconName: 'FileX', description: 'Surrender your ration card if no longer eligible',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'surrenderReason', label: 'Reason for Surrender', type: 'select', required: true, options: ['Migrated', 'Income Increased', 'Death of Head', 'Other'] },
-          { name: 'reasonDetails', label: 'Details', type: 'textarea', placeholder: 'Explain reason', required: false }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', required: true },
+          { name: 'reason', label: 'Reason for Surrender', type: 'select', required: true, options: ['No Longer Eligible', 'Migration to Another State', 'Income Exceeds Limit', 'Duplicate Card', 'Voluntary Surrender'] },
+          { name: 'hofAadhaar', label: "Head of Family's Aadhaar Number", type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'rationCardDoc', label: 'Upload Ration Card Copy', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Ration Card', "Head of Family's Aadhaar Card", 'Application for surrender addressed to Food Inspector / Supply Officer']
       },
-      { 
-        id: 'onorc', 
-        label: 'ONORC Portability', 
-        labelHi: 'ONORC पोर्टेबिलिटी', 
-        iconName: 'Globe', 
-        description: 'Use One Nation One Ration Card for inter-state portability',
+      { id: 'onorc', label: 'ONORC Portability', labelHi: 'ONORC पोर्टेबिलिटी', iconName: 'Globe', description: 'Use One Nation One Ration Card for inter-state portability',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'newState', label: 'New State of Residence', type: 'text', placeholder: 'Where are you migrating?', required: true },
-          { name: 'newAddress', label: 'New Address', type: 'textarea', placeholder: 'Full address in new state', required: true }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', required: true },
+          { name: 'hofAadhaar', label: "Head of Family's Aadhaar Number", type: 'text', placeholder: 'Must be seeded to ration card', required: true },
+          { name: 'homeState', label: 'Home State (where card was issued)', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'currentState', label: 'Current State of Residence', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true }
+        ],
+        requiredDocs: ['Ration Card with Aadhaar seeding (all members linked)', "Aadhaar card of the member drawing rations", 'Note: ONORC uses Aadhaar-based biometric authentication at e-PoS machines', 'No additional documents needed — portability is automatic if Aadhaar is seeded']
       },
-      { 
-        id: 'category-change', 
-        label: 'Category Change', 
-        labelHi: 'श्रेणी परिवर्तन', 
-        iconName: 'ArrowUpDown', 
-        description: 'Apply to change ration card category (APL/BPL/AAY)',
+      { id: 'category-change', label: 'Category Change', labelHi: 'श्रेणी परिवर्तन', iconName: 'ArrowUpDown', description: 'Apply to change ration card category (APL/BPL/AAY)',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'currentCategory', label: 'Current Category', type: 'select', required: true, options: ['APL', 'BPL', 'AAY'] },
-          { name: 'newCategory', label: 'Requested Category', type: 'select', required: true, options: ['APL', 'BPL', 'AAY'] },
-          { name: 'updatedIncome', label: 'Updated Annual Income (₹)', type: 'text', placeholder: 'New income', required: true },
-          { name: 'incomeCert', label: 'New Income Certificate', type: 'file', required: true }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofName', label: 'Head of Family Name', type: 'text', required: true },
+          { name: 'currentCategory', label: 'Current Category', type: 'select', required: true, options: ['APL', 'BPL', 'AAY', 'PHH'] },
+          { name: 'requestedCategory', label: 'Requested New Category', type: 'select', required: true, options: ['APL', 'BPL', 'AAY', 'PHH'] },
+          { name: 'annualIncome', label: 'Annual Family Income (₹)', type: 'text', required: true },
+          { name: 'reason', label: 'Reason for Category Change', type: 'textarea', placeholder: 'Explain why category change is needed', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'incomeCert', label: 'Upload Income Certificate', type: 'file', required: true },
+          { name: 'rationCardCopy', label: 'Upload Ration Card Copy', type: 'file', required: true }
+        ],
+        requiredDocs: ['Existing Ration Card', 'Updated Income Certificate from Tehsildar/SDM', 'Caste Certificate (if applicable for AAY/PHH)', 'Application for category change']
       },
-      { 
-        id: 'download-ecard', 
-        label: 'Download e-Ration Card', 
-        labelHi: 'ई-राशन कार्ड डाउनलोड', 
-        iconName: 'Download', 
-        description: 'Download the digital copy of your ration card online',
+      { id: 'download-ecard', label: 'Download e-Ration Card', labelHi: 'ई-राशन कार्ड डाउनलोड', iconName: 'Download', description: 'Download the digital copy of your ration card online',
         formFields: [
-          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', placeholder: 'Your RC number', required: true },
-          { name: 'headPhone', label: 'Phone Number (linked to RC)', type: 'tel', placeholder: '10-digit mobile', required: true }
-        ]
+          { name: 'rationCardNumber', label: 'Ration Card Number', type: 'text', required: true },
+          { name: 'hofAadhaar', label: "Head of Family's Aadhaar Number", type: 'text', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent here', required: true }
+        ],
+        requiredDocs: ['Ration Card Number', "Head of Family's Aadhaar Number", 'Registered mobile number for OTP', 'Note: Download from your state PDS portal or Mera Ration app']
       }
     ],
     eligibility: ['Any Indian household', 'Family must not already hold a ration card', 'Applicable for APL, BPL, and AAY categories'],
@@ -905,102 +929,115 @@ export const documentsData: DocumentInfo[] = [
     category: 'Identity',
     iconName: 'Baby',
     services: [
-      { 
-        id: 'new-registration', 
-        label: 'New Registration', 
-        labelHi: 'नया पंजीकरण', 
-        iconName: 'FilePlus', 
-        description: 'Register a birth within 21 days (free of charge)',
+      { id: 'new-registration', label: 'New Registration', labelHi: 'नया पंजीकरण', iconName: 'FilePlus', description: 'Register a birth within 21 days (free of charge)',
         formFields: [
-          { name: 'childName', label: "Child's Name", type: 'text', placeholder: 'Full name of child', required: true },
+          { name: 'childName', label: "Child's Name (if decided)", type: 'text', placeholder: 'Leave blank if not yet decided', required: false },
           { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
           { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
+          { name: 'placeOfBirth', label: 'Place of Birth', type: 'select', required: true, options: ['Hospital / Institution', 'Home', 'Other'] },
+          { name: 'hospitalName', label: 'Hospital / Institution Name', type: 'text', placeholder: 'Name of hospital or birth place', required: true },
+          { name: 'fatherName', label: "Father's Full Name", type: 'text', required: true },
+          { name: 'fatherAadhaar', label: "Father's Aadhaar Number", type: 'text', placeholder: '12-digit Aadhaar', required: true },
+          { name: 'motherName', label: "Mother's Full Name", type: 'text', required: true },
+          { name: 'motherAadhaar', label: "Mother's Aadhaar Number", type: 'text', required: true },
+          { name: 'address', label: 'Permanent Address of Parents', type: 'textarea', placeholder: 'House No., Street, City, District, State, PIN', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'religion', label: 'Religion of Father', type: 'text', required: false },
+          { name: 'informantName', label: 'Informant Name (person reporting birth)', type: 'text', required: true },
+          { name: 'hospitalSlip', label: 'Upload Hospital Discharge Slip / Birth Report', type: 'file', required: true },
+          { name: 'parentId', label: "Upload Parents' Aadhaar Cards", type: 'file', required: true },
+          { name: 'marriageCert', label: 'Upload Marriage Certificate of Parents', type: 'file', required: false }
+        ],
+        requiredDocs: ['Hospital discharge slip / Birth report from institution', "Parents' Aadhaar cards", 'Marriage certificate of parents', 'Proof of Address of parents', 'Note: Registration within 21 days is FREE']
+      },
+      { id: 'delayed-registration', label: 'Delayed Registration', labelHi: 'विलंबित पंजीकरण', iconName: 'Clock', description: 'Register a birth after 21 days with affidavit and magistrate order',
+        formFields: [
+          { name: 'childName', label: "Child's Full Name", type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
+          { name: 'placeOfBirth', label: 'Place of Birth', type: 'text', required: true },
+          { name: 'fatherName', label: "Father's Full Name", type: 'text', required: true },
+          { name: 'motherName', label: "Mother's Full Name", type: 'text', required: true },
+          { name: 'address', label: 'Permanent Address', type: 'textarea', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'delayPeriod', label: 'Delay Period', type: 'select', required: true, options: ['21 days – 30 days', '30 days – 1 year', 'More than 1 year'] },
+          { name: 'reasonForDelay', label: 'Reason for Delay', type: 'textarea', placeholder: 'Explain why birth was not registered in time', required: true },
+          { name: 'hospitalSlip', label: 'Upload Birth Proof (Hospital slip / Vaccination card)', type: 'file', required: true },
+          { name: 'affidavit', label: 'Upload Notarized Affidavit', type: 'file', required: true },
+          { name: 'magistrateOrder', label: 'Upload Magistrate Order (if >1 year delay)', type: 'file', required: false },
+          { name: 'parentId', label: "Upload Parents' ID Proof", type: 'file', required: true }
+        ],
+        requiredDocs: ['Birth proof — Hospital discharge slip / Vaccination card / School record', 'Notarized affidavit declaring birth details and reason for delay', 'Magistrate / SDM order (mandatory if delay > 1 year)', "Parents' Aadhaar cards", 'Late registration fee receipt', 'Proof of Address']
+      },
+      { id: 'correction', label: 'Correction', labelHi: 'सुधार', iconName: 'Edit', description: 'Correct errors in name, DOB, or parent details',
+        formFields: [
+          { name: 'registrationNumber', label: 'Birth Registration Number', type: 'text', required: true },
+          { name: 'registrationDate', label: 'Date of Registration', type: 'date', required: true },
+          { name: 'childName', label: "Child's Name (current on certificate)", type: 'text', required: true },
+          { name: 'correctionField', label: 'Field to Correct', type: 'select', required: true, options: ["Child's Name", 'Date of Birth', "Father's Name", "Mother's Name", 'Place of Birth', 'Gender', 'Address'] },
+          { name: 'currentValue', label: 'Current (incorrect) Value', type: 'text', required: true },
+          { name: 'correctedValue', label: 'Correct Value', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true },
+          { name: 'originalCert', label: 'Upload Original Birth Certificate', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Birth Certificate', 'Supporting document — School marksheet / Aadhaar / Passport / Affidavit', 'Application addressed to Registrar for correction', 'Newspaper advertisement (for major name changes, some states)']
+      },
+      { id: 'duplicate', label: 'Duplicate Certificate', labelHi: 'डुप्लीकेट प्रमाणपत्र', iconName: 'Copy', description: 'Obtain a duplicate if the original is lost or damaged',
+        formFields: [
+          { name: 'childName', label: "Child's Full Name", type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'registrationNumber', label: 'Registration Number (if known)', type: 'text', required: false },
           { name: 'fatherName', label: "Father's Name", type: 'text', required: true },
           { name: 'motherName', label: "Mother's Name", type: 'text', required: true },
-          { name: 'hospitalName', label: 'Hospital / Place of Birth', type: 'text', placeholder: 'Hospital name or home address', required: true },
-          { name: 'address', label: 'Permanent Address', type: 'textarea', placeholder: 'Full address', required: true },
-          { name: 'hospitalSlip', label: 'Upload Hospital Discharge Slip', type: 'file', required: true }
-        ]
+          { name: 'placeOfBirth', label: 'Place of Birth', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'reason', label: 'Reason for Duplicate', type: 'select', required: true, options: ['Lost', 'Damaged', 'Stolen'] },
+          { name: 'affidavit', label: 'Upload Affidavit / Self-Declaration', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload Applicant ID Proof', type: 'file', required: true }
+        ],
+        requiredDocs: ['Affidavit declaring loss/damage of original', 'Registration number (if available)', "Applicant's ID proof — Aadhaar / Voter ID", 'Duplicate certificate fee receipt']
       },
-      { 
-        id: 'delayed-registration', 
-        label: 'Delayed Registration', 
-        labelHi: 'विलंबित पंजीकरण', 
-        iconName: 'Clock', 
-        description: 'Register a birth after 21 days with affidavit and magistrate order',
+      { id: 'name-inclusion', label: 'Name Inclusion', labelHi: 'नाम शामिल करें', iconName: 'UserPlus', description: "Add the child's name if it was not included at the time of registration",
         formFields: [
-          { name: 'childName', label: "Child's Name", type: 'text', placeholder: 'Full name of child', required: true },
+          { name: 'registrationNumber', label: 'Birth Registration Number', type: 'text', required: true },
+          { name: 'childName', label: "Child's Name to be Included", type: 'text', placeholder: 'Full name of child', required: true },
           { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
           { name: 'fatherName', label: "Father's Name", type: 'text', required: true },
           { name: 'motherName', label: "Mother's Name", type: 'text', required: true },
-          { name: 'affidavit', label: 'Upload Affidavit', type: 'file', required: true },
-          { name: 'magistrateOrder', label: 'Upload Magistrate Order', type: 'file', required: true },
-          { name: 'witnesses', label: 'Two Witness Details', type: 'textarea', placeholder: 'Names and contact of two witnesses', required: true }
-        ]
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'originalCert', label: 'Upload Original Birth Certificate', type: 'file', required: true },
+          { name: 'schoolRecord', label: 'Upload School Admission Record (if applicable)', type: 'file', required: false },
+          { name: 'affidavit', label: 'Upload Affidavit for Name Inclusion', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Birth Certificate (without name)', 'Affidavit declaring the name to be included', 'School admission record / Naming ceremony document (if applicable)', "Parents' ID proof", 'Note: Free within 12 months of registration; fee applicable after']
       },
-      { 
-        id: 'correction', 
-        label: 'Correction', 
-        labelHi: 'सुधार', 
-        iconName: 'Edit', 
-        description: 'Correct errors in name, DOB, or parent details',
+      { id: 'non-availability', label: 'Non-Availability Certificate', labelHi: 'अनुपलब्धता प्रमाणपत्र', iconName: 'FileQuestion', description: 'Get a certificate stating birth was not registered in records',
         formFields: [
-          { name: 'certNumber', label: 'Birth Certificate Number', type: 'text', placeholder: 'Certificate number', required: true },
-          { name: 'fieldToCorrect', label: 'Field to Correct', type: 'select', required: true, options: ['Child Name', 'DOB', "Father's Name", "Mother's Name", 'Address'] },
-          { name: 'correctValue', label: 'Correct Value', type: 'text', placeholder: 'Corrected value', required: true },
-          { name: 'proof', label: 'Proof Document', type: 'file', required: true }
-        ]
-      },
-      { 
-        id: 'duplicate', 
-        label: 'Duplicate Certificate', 
-        labelHi: 'डुप्लीकेट प्रमाणपत्र', 
-        iconName: 'Copy', 
-        description: 'Obtain a duplicate if the original is lost or damaged',
-        formFields: [
-          { name: 'certNumber', label: 'Original Birth Certificate Number', type: 'text', placeholder: 'Certificate number', required: true },
-          { name: 'lossReason', label: 'Reason (Lost / Damaged)', type: 'select', required: true, options: ['Lost', 'Damaged', 'Stolen'] }
-        ]
-      },
-      { 
-        id: 'name-inclusion', 
-        label: 'Name Inclusion', 
-        labelHi: 'नाम शामिल करें', 
-        iconName: 'UserPlus', 
-        description: "Add the child's name if it was not included at the time of registration",
-        formFields: [
-          { name: 'certNumber', label: 'Birth Certificate Number', type: 'text', placeholder: 'Certificate number', required: true },
-          { name: 'childName', label: "Child's Name (to be added)", type: 'text', placeholder: 'Full name', required: true },
-          { name: 'nameChangeReason', label: 'Reason', type: 'textarea', placeholder: 'Why was name not included earlier?', required: true },
-          { name: 'affidavit', label: 'Upload Affidavit', type: 'file', required: true }
-        ]
-      },
-      { 
-        id: 'non-availability', 
-        label: 'Non-Availability Certificate', 
-        labelHi: 'अनुपलब्धता प्रमाणपत्र', 
-        iconName: 'FileQuestion', 
-        description: 'Get a certificate stating birth was not registered in records',
-        formFields: [
-          { name: 'childName', label: "Child's Name", type: 'text', placeholder: 'Full name of child', required: true },
-          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'applicantName', label: "Applicant's Full Name", type: 'text', required: true },
+          { name: 'personName', label: 'Name of Person (whose birth record is sought)', type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth (approximate)', type: 'date', required: true },
+          { name: 'placeOfBirth', label: 'Place of Birth', type: 'text', required: true },
           { name: 'fatherName', label: "Father's Name", type: 'text', required: true },
           { name: 'motherName', label: "Mother's Name", type: 'text', required: true },
-          { name: 'reason', label: 'Reason for Non-Availability Certificate', type: 'textarea', placeholder: 'Why is this needed?', required: true }
-        ]
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'purpose', label: 'Purpose of Certificate', type: 'select', required: true, options: ['Passport Application', 'Visa / Immigration', 'School Admission', 'Legal Proceedings', 'Other'] },
+          { name: 'affidavit', label: 'Upload Affidavit declaring non-availability', type: 'file', required: true },
+          { name: 'idProof', label: "Upload Applicant's ID Proof", type: 'file', required: true }
+        ],
+        requiredDocs: ['Affidavit declaring that birth record is not available in official records', "Applicant's ID Proof — Aadhaar / Voter ID / Passport", 'Application addressed to local Registrar', 'Fee receipt for NABC']
       },
-      { 
-        id: 'search-record', 
-        label: 'Search Birth Record', 
-        labelHi: 'जन्म रिकॉर्ड खोजें', 
-        iconName: 'Search', 
-        description: 'Search for a birth record in the CRS database online',
+      { id: 'search-record', label: 'Search Birth Record', labelHi: 'जन्म रिकॉर्ड खोजें', iconName: 'Search', description: 'Search for a birth record in the CRS database online',
         formFields: [
-          { name: 'childName', label: "Child's Name", type: 'text', placeholder: 'Full name', required: true },
-          { name: 'dob', label: 'Date of Birth', type: 'date', required: false },
-          { name: 'fatherName', label: "Father's Name", type: 'text', placeholder: 'Optional', required: false },
-          { name: 'motherName', label: "Mother's Name", type: 'text', placeholder: 'Optional', required: false }
-        ]
+          { name: 'searchType', label: 'Search By', type: 'select', required: true, options: ['Registration Number', 'Name and Date of Birth'] },
+          { name: 'registrationNumber', label: 'Registration Number (if known)', type: 'text', required: false },
+          { name: 'childName', label: "Child's Name", type: 'text', required: false },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'district', label: 'District', type: 'text', required: true }
+        ],
+        requiredDocs: ['Registration Number or Name + Date of Birth', 'State and District information', 'Note: Search at crsorgi.gov.in or your state CRS portal']
       }
     ],
     eligibility: ['Any child born in India', 'Registration within 21 days is free', 'Late registration requires additional affidavit'],
@@ -1036,66 +1073,75 @@ export const documentsData: DocumentInfo[] = [
     category: 'Finance',
     iconName: 'IndianRupee',
     services: [
-      { 
-        id: 'new-application', 
-        label: 'New Application', 
-        labelHi: 'नया आवेदन', 
-        iconName: 'FilePlus', 
-        description: 'Apply for a new income certificate from the revenue department',
+      { id: 'new-application', label: 'New Application', labelHi: 'नया आवेदन', iconName: 'FilePlus', description: 'Apply for a new income certificate from the revenue department',
         formFields: [
-          ...commonPersonalFields,
+          { name: 'fullName', label: 'Full Name (as per Aadhaar)', type: 'text', required: true },
+          { name: 'fatherName', label: "Father's / Husband's Name", type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Full Residential Address', type: 'textarea', placeholder: 'House No., Street, Village/Town, District, State, PIN', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'occupation', label: 'Occupation', type: 'select', required: true, options: ['Salaried (Government)', 'Salaried (Private)', 'Self-Employed', 'Business', 'Agriculture', 'Daily Wage', 'Student', 'Unemployed', 'Pensioner'] },
+          { name: 'annualIncome', label: 'Annual Income from All Sources (₹)', type: 'text', placeholder: 'e.g. 250000', required: true },
+          { name: 'incomeBreakdown', label: 'Income Breakdown (if multiple sources)', type: 'textarea', placeholder: 'Salary: ₹__; Agriculture: ₹__; Business: ₹__', required: false },
+          { name: 'purpose', label: 'Purpose of Certificate', type: 'select', required: true, options: ['Scholarship', 'Fee Waiver / Concession', 'Government Scheme / Subsidy', 'Ration Card', 'EWS Certificate', 'Legal Proceedings', 'Other'] },
+          { name: 'idProof', label: 'Upload Proof of Identity (Aadhaar)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'incomeProof', label: 'Upload Income Proof (Salary slip / ITR / Self-declaration)', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Recent Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Proof of Identity — Aadhaar Card (mandatory in most states)', 'Proof of Address — Aadhaar / Utility bill / Voter ID', 'Income Proof — Salary slip / Form 16 / ITR / Self-declaration affidavit', 'Ration Card (if available)', 'Recent passport-size photograph', 'Note: Self-employed applicants need a notarized self-declaration affidavit']
+      },
+      { id: 'renewal', label: 'Renewal', labelHi: 'नवीनीकरण', iconName: 'RefreshCw', description: 'Renew your expired income certificate (typically valid for 1 year)',
+        formFields: [
+          { name: 'previousCertNumber', label: 'Previous Certificate Number', type: 'text', required: true },
+          { name: 'previousIssueDate', label: 'Previous Issue Date', type: 'date', required: true },
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'address', label: 'Current Address', type: 'textarea', required: true },
+          { name: 'annualIncome', label: 'Current Annual Income (₹)', type: 'text', required: true },
           { name: 'occupation', label: 'Occupation', type: 'select', required: true, options: ['Salaried', 'Self-Employed', 'Business', 'Agriculture', 'Student', 'Unemployed'] },
-          { name: 'annualIncome', label: 'Annual Income (₹)', type: 'text', placeholder: 'e.g., 250000', required: true },
-          { name: 'salarySlip', label: 'Upload Salary Slip / Declaration', type: 'file', required: true }
-        ]
+          { name: 'previousCert', label: 'Upload Previous Income Certificate', type: 'file', required: true },
+          { name: 'incomeProof', label: 'Upload Updated Income Proof', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload ID Proof (Aadhaar)', type: 'file', required: true }
+        ],
+        requiredDocs: ['Previous Income Certificate copy', 'Updated income proof — Salary slip / ITR / Self-declaration', 'Aadhaar Card', 'Note: Income certificates are typically valid for 6 months to 1 year']
       },
-      { 
-        id: 'renewal', 
-        label: 'Renewal', 
-        labelHi: 'नवीनीकरण', 
-        iconName: 'RefreshCw', 
-        description: 'Renew your expired income certificate (typically valid for 1 year)',
+      { id: 'correction', label: 'Correction', labelHi: 'सुधार', iconName: 'Edit', description: 'Correct errors in your existing income certificate',
         formFields: [
-          { name: 'previousCertNumber', label: 'Previous Certificate Number', type: 'text', placeholder: 'Old certificate number', required: true },
-          { name: 'expiryDate', label: 'Expiry Date', type: 'date', required: true },
-          { name: 'annualIncome', label: 'Updated Annual Income (₹)', type: 'text', placeholder: 'Current income', required: true },
-          { name: 'recentSalarySlip', label: 'Recent Salary Slip / Declaration', type: 'file', required: true }
-        ]
+          { name: 'certNumber', label: 'Certificate Number', type: 'text', required: true },
+          { name: 'issueDate', label: 'Issue Date', type: 'date', required: true },
+          { name: 'fullName', label: 'Full Name (as on certificate)', type: 'text', required: true },
+          { name: 'correctionField', label: 'Field to Correct', type: 'select', required: true, options: ['Name', 'Father Name', 'Address', 'Income Amount', 'Date of Birth', 'Occupation'] },
+          { name: 'currentValue', label: 'Current (incorrect) Value', type: 'text', required: true },
+          { name: 'correctedValue', label: 'Correct Value', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'originalCert', label: 'Upload Original Certificate', type: 'file', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Income Certificate', 'Supporting document for correction — Aadhaar / Salary slip / Birth certificate', 'Application for correction addressed to Tehsildar/SDM']
       },
-      { 
-        id: 'correction', 
-        label: 'Correction', 
-        labelHi: 'सुधार', 
-        iconName: 'Edit', 
-        description: 'Correct errors in your existing income certificate',
+      { id: 'verify', label: 'Verify Certificate', labelHi: 'प्रमाणपत्र सत्यापन', iconName: 'ShieldCheck', description: 'Verify the authenticity of an income certificate online',
         formFields: [
-          { name: 'certNumber', label: 'Certificate Number', type: 'text', placeholder: 'Cert number to correct', required: true },
-          { name: 'errorField', label: 'Error in', type: 'select', required: true, options: ['Name', 'Income Amount', 'Occupation', 'Address', 'Other'] },
-          { name: 'correction', label: 'Correction', type: 'text', placeholder: 'Provide correct value', required: true },
-          { name: 'proof', label: 'Supporting Document', type: 'file', required: true }
-        ]
+          { name: 'certNumber', label: 'Certificate Number', type: 'text', required: true },
+          { name: 'issueDate', label: 'Issue Date', type: 'date', required: true },
+          { name: 'applicantName', label: 'Applicant Name (as on certificate)', type: 'text', required: false },
+          { name: 'state', label: 'Issuing State', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] }
+        ],
+        requiredDocs: ['Certificate Number', 'Issue Date', 'Note: Verify on your state e-District portal or UMANG app']
       },
-      { 
-        id: 'verify', 
-        label: 'Verify Certificate', 
-        labelHi: 'प्रमाणपत्र सत्यापन', 
-        iconName: 'ShieldCheck', 
-        description: 'Verify the authenticity of an income certificate online',
+      { id: 'download-cert', label: 'Download Certificate', labelHi: 'प्रमाणपत्र डाउनलोड', iconName: 'Download', description: 'Download digitally signed income certificate from e-district portal',
         formFields: [
-          { name: 'certNumber', label: 'Certificate Number', type: 'text', placeholder: 'Certificate to verify', required: true },
-          { name: 'holderName', label: 'Certificate Holder Name', type: 'text', placeholder: 'Full name', required: true }
-        ]
-      },
-      { 
-        id: 'download-cert', 
-        label: 'Download Certificate', 
-        labelHi: 'प्रमाणपत्र डाउनलोड', 
-        iconName: 'Download', 
-        description: 'Download digitally signed income certificate from e-district portal',
-        formFields: [
-          { name: 'certNumber', label: 'Certificate Number', type: 'text', placeholder: 'Certificate number', required: true },
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true }
-        ]
+          { name: 'applicationNumber', label: 'Application / Certificate Number', type: 'text', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: 'OTP will be sent', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] }
+        ],
+        requiredDocs: ['Application / Certificate Number', 'Aadhaar Number', 'Registered mobile number for OTP', 'Note: Download from state e-District portal']
       }
     ],
     eligibility: ['Any Indian resident', 'Required for scholarships, fee waivers, subsidies', 'Issued by Tehsildar / SDM office'],
@@ -1128,70 +1174,85 @@ export const documentsData: DocumentInfo[] = [
     category: 'Welfare',
     iconName: 'ScrollText',
     services: [
-      { 
-        id: 'new-application', 
-        label: 'New Application', 
-        labelHi: 'नया आवेदन', 
-        iconName: 'FilePlus', 
-        description: 'Apply for a new caste certificate from SDM/Tehsildar office',
+      { id: 'new-application', label: 'New Application', labelHi: 'नया आवेदन', iconName: 'FilePlus', description: 'Apply for a new caste certificate from SDM/Tehsildar office',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'caste', label: 'Caste', type: 'text', placeholder: 'Your caste', required: true },
-          { name: 'subCaste', label: 'Sub-Caste', type: 'text', placeholder: 'If applicable', required: false },
+          { name: 'fullName', label: 'Full Name (as per Aadhaar)', type: 'text', required: true },
+          { name: 'fatherName', label: "Father's Full Name", type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Transgender'] },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', placeholder: '12-digit Aadhaar', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Full Residential Address', type: 'textarea', placeholder: 'House No., Street, Village/Town, District, State, PIN', required: true },
+          { name: 'state', label: 'State / UT', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+          { name: 'caste', label: 'Caste', type: 'text', placeholder: 'Your caste name', required: true },
+          { name: 'subCaste', label: 'Sub-Caste (if applicable)', type: 'text', required: false },
+          { name: 'category', label: 'Category', type: 'select', required: true, options: ['SC (Scheduled Caste)', 'ST (Scheduled Tribe)', 'OBC (Other Backward Class)', 'EWS (Economically Weaker Section)'] },
+          { name: 'purpose', label: 'Purpose of Certificate', type: 'select', required: true, options: ['Education / Scholarship', 'Government Job / Recruitment', 'Reservation Benefit', 'Ration Card / Welfare Scheme', 'Other'] },
+          { name: 'idProof', label: 'Upload Proof of Identity (Aadhaar)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Proof of Address', type: 'file', required: true },
+          { name: 'familyCasteCert', label: "Upload Father's / Blood Relative's Caste Certificate", type: 'file', required: true },
+          { name: 'schoolCert', label: 'Upload School Leaving Certificate / 10th Marksheet', type: 'file', required: true },
+          { name: 'affidavit', label: 'Upload Self-Declaration Affidavit', type: 'file', required: true },
+          { name: 'photo', label: 'Upload Passport-size Photograph', type: 'file', required: true }
+        ],
+        requiredDocs: ['Proof of Identity — Aadhaar / Voter ID / PAN', 'Proof of Address — Aadhaar / Utility bill / Voter ID', "Father's or blood relative's caste certificate (strongly recommended)", 'School Leaving Certificate / 10th Marksheet (showing caste column)', 'Notarized self-declaration affidavit', 'Passport-size photograph', 'Income Certificate (required for OBC Non-Creamy Layer)']
+      },
+      { id: 'renewal', label: 'Renewal', labelHi: 'नवीनीकरण', iconName: 'RefreshCw', description: 'Renew or reissue your caste certificate if required',
+        formFields: [
+          { name: 'previousCertNumber', label: 'Previous Certificate Number', type: 'text', required: true },
+          { name: 'previousIssueDate', label: 'Previous Issue Date', type: 'date', required: true },
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'caste', label: 'Caste', type: 'text', required: true },
           { name: 'category', label: 'Category', type: 'select', required: true, options: ['SC', 'ST', 'OBC', 'EWS'] },
-          { name: 'familyCert', label: "Upload Family Member's Caste Certificate", type: 'file', required: true },
-          { name: 'affidavit', label: 'Upload Self-Declaration Affidavit', type: 'file', required: true }
-        ]
+          { name: 'address', label: 'Current Address', type: 'textarea', required: true },
+          { name: 'previousCert', label: 'Upload Previous Caste Certificate', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload ID Proof (Aadhaar)', type: 'file', required: true },
+          { name: 'incomeCert', label: 'Upload Income Certificate (for OBC Non-Creamy Layer)', type: 'file', required: false }
+        ],
+        requiredDocs: ['Previous Caste Certificate', 'Aadhaar Card', 'Income Certificate (mandatory for OBC Non-Creamy Layer renewal)', 'Note: SC/ST certificates are generally valid permanently; OBC-NCL may require periodic renewal']
       },
-      { 
-        id: 'renewal', 
-        label: 'Renewal', 
-        labelHi: 'नवीनीकरण', 
-        iconName: 'RefreshCw', 
-        description: 'Renew or reissue your caste certificate if required',
+      { id: 'correction', label: 'Correction', labelHi: 'सुधार', iconName: 'Edit', description: 'Correct errors in your existing caste certificate',
         formFields: [
-          { name: 'certNumber', label: 'Current Certificate Number', type: 'text', placeholder: 'Cert number', required: true },
-          { name: 'issuedDate', label: 'Issue Date', type: 'date', required: true },
-          { name: 'renewalReason', label: 'Reason for Renewal', type: 'select', required: true, options: ['Expired', 'For New Admission', 'For Job Application', 'Other'] },
-          { name: 'oldCertCopy', label: 'Copy of Old Certificate', type: 'file', required: true }
-        ]
+          { name: 'certNumber', label: 'Certificate Number', type: 'text', required: true },
+          { name: 'issueDate', label: 'Issue Date', type: 'date', required: true },
+          { name: 'fullName', label: 'Full Name (as on certificate)', type: 'text', required: true },
+          { name: 'correctionField', label: 'Field to Correct', type: 'select', required: true, options: ['Name', 'Father Name', 'Caste Name', 'Sub-Caste', 'Category', 'Address', 'Date of Birth'] },
+          { name: 'currentValue', label: 'Current (incorrect) Value', type: 'text', required: true },
+          { name: 'correctedValue', label: 'Correct Value', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'originalCert', label: 'Upload Original Caste Certificate', type: 'file', required: true },
+          { name: 'supportDoc', label: 'Upload Supporting Document', type: 'file', required: true }
+        ],
+        requiredDocs: ['Original Caste Certificate', 'Supporting document — 10th marksheet / Aadhaar / Birth certificate / Gazette notification', 'Application for correction addressed to SDM/Tehsildar']
       },
-      { 
-        id: 'correction', 
-        label: 'Correction', 
-        labelHi: 'सुधार', 
-        iconName: 'Edit', 
-        description: 'Correct errors in your existing caste certificate',
+      { id: 'verify', label: 'Verify Certificate', labelHi: 'प्रमाणपत्र सत्यापन', iconName: 'ShieldCheck', description: 'Verify the authenticity of a caste certificate online',
         formFields: [
-          { name: 'certNumber', label: 'Certificate Number', type: 'text', placeholder: 'Cert number to correct', required: true },
-          { name: 'errorField', label: 'Field with Error', type: 'select', required: true, options: ['Name', 'Caste', 'Category', 'Address', 'Father Name', 'Other'] },
-          { name: 'correctValue', label: 'Correct Value', type: 'text', placeholder: 'Provide correct value', required: true },
-          { name: 'proof', label: 'Proof Document', type: 'file', required: true }
-        ]
+          { name: 'certNumber', label: 'Certificate Number', type: 'text', required: true },
+          { name: 'issueDate', label: 'Issue Date', type: 'date', required: true },
+          { name: 'applicantName', label: 'Applicant Name (as on certificate)', type: 'text', required: false },
+          { name: 'state', label: 'Issuing State', type: 'select', required: true, options: ['Andhra Pradesh', 'Bihar', 'Delhi', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] }
+        ],
+        requiredDocs: ['Certificate Number', 'Issue Date', 'Note: Verify on your state e-District portal or UMANG app']
       },
-      { 
-        id: 'verify', 
-        label: 'Verify Certificate', 
-        labelHi: 'प्रमाणपत्र सत्यापन', 
-        iconName: 'ShieldCheck', 
-        description: 'Verify the authenticity of a caste certificate online',
+      { id: 'validity-extension', label: 'Validity Extension', labelHi: 'वैधता विस्तार', iconName: 'CalendarClock', description: 'Extend validity of an expired caste certificate via e-district',
         formFields: [
-          { name: 'certNumber', label: 'Certificate Number', type: 'text', placeholder: 'Cert to verify', required: true },
-          { name: 'holderName', label: 'Certificate Holder Name', type: 'text', placeholder: 'Full name', required: true }
-        ]
-      },
-      { 
-        id: 'validity-extension', 
-        label: 'Validity Extension', 
-        labelHi: 'वैधता विस्तार', 
-        iconName: 'CalendarClock', 
-        description: 'Extend validity of an expired caste certificate via e-district',
-        formFields: [
-          { name: 'certNumber', label: 'Certificate Number', type: 'text', placeholder: 'Expired cert number', required: true },
+          { name: 'certNumber', label: 'Certificate Number', type: 'text', required: true },
+          { name: 'issueDate', label: 'Original Issue Date', type: 'date', required: true },
           { name: 'expiryDate', label: 'Expiry Date', type: 'date', required: true },
-          { name: 'extensionPeriod', label: 'Extension Period', type: 'select', required: true, options: ['1 Year', '2 Years', '5 Years'] },
-          { name: 'reason', label: 'Reason for Extension', type: 'textarea', placeholder: 'Why do you need extension?', required: false }
-        ]
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'caste', label: 'Caste', type: 'text', required: true },
+          { name: 'category', label: 'Category', type: 'select', required: true, options: ['SC', 'ST', 'OBC', 'EWS'] },
+          { name: 'purpose', label: 'Purpose of Extension', type: 'textarea', placeholder: 'Why extension is needed', required: true },
+          { name: 'originalCert', label: 'Upload Original Caste Certificate', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload ID Proof', type: 'file', required: true },
+          { name: 'incomeCert', label: 'Upload Income Certificate (for OBC-NCL)', type: 'file', required: false }
+        ],
+        requiredDocs: ['Original Caste Certificate (expired)', 'Aadhaar Card', 'Income Certificate (for OBC Non-Creamy Layer)', 'Application for validity extension']
       }
     ],
     eligibility: ['Members of SC, ST, or OBC communities', 'Required for educational and employment reservations', 'Issued by SDM / Tehsildar office'],
@@ -1225,141 +1286,157 @@ export const documentsData: DocumentInfo[] = [
     category: 'Transport',
     iconName: 'FileText',
     services: [
-      { 
-        id: 'new-registration', 
-        label: 'New Registration', 
-        labelHi: 'नया पंजीकरण', 
-        iconName: 'FilePlus', 
-        description: 'Register a newly purchased vehicle at the RTO',
+      { id: 'new-registration', label: 'New Registration', labelHi: 'नया पंजीकरण', iconName: 'FilePlus', description: 'Register a newly purchased vehicle at the RTO',
         formFields: [
-          ...commonPersonalFields,
-          { name: 'vehicleType', label: 'Vehicle Type', type: 'select', required: true, options: ['Two-Wheeler', 'Car', 'Commercial Vehicle', 'Three-Wheeler', 'Tractor', 'Bus'] },
-          { name: 'vehicleMake', label: 'Vehicle Make & Model', type: 'text', placeholder: 'e.g., Maruti Swift', required: true },
-          { name: 'vehicleYear', label: 'Manufacturing Year', type: 'text', placeholder: 'e.g., 2024', required: true },
+          { name: 'ownerName', label: 'Owner Full Name', type: 'text', required: true },
+          { name: 'fatherName', label: "Father's / Husband's Name", type: 'text', required: true },
+          { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
+          { name: 'aadhaarNumber', label: 'Aadhaar Number', type: 'text', required: true },
+          { name: 'panNumber', label: 'PAN Number', type: 'text', placeholder: '10-character PAN', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'address', label: 'Residential Address', type: 'textarea', required: true },
+          { name: 'vehicleType', label: 'Vehicle Type', type: 'select', required: true, options: ['Two-Wheeler', 'Three-Wheeler', 'Car / LMV', 'Commercial / HMV'] },
+          { name: 'vehicleMake', label: 'Vehicle Make & Model', type: 'text', placeholder: 'e.g. Maruti Swift VXi', required: true },
+          { name: 'vehicleColor', label: 'Vehicle Colour', type: 'text', required: true },
+          { name: 'engineNo', label: 'Engine Number', type: 'text', placeholder: 'From vehicle invoice', required: true },
           { name: 'chassisNo', label: 'Chassis Number', type: 'text', placeholder: 'From vehicle invoice', required: true },
-          { name: 'engineNo', label: 'Engine Number', type: 'text', required: true },
-          { name: 'invoice', label: 'Upload Sale Invoice', type: 'file', required: true },
+          { name: 'fuelType', label: 'Fuel Type', type: 'select', required: true, options: ['Petrol', 'Diesel', 'CNG', 'Electric', 'Hybrid', 'LPG'] },
+          { name: 'invoice', label: 'Upload Sale Invoice (Form 21)', type: 'file', required: true },
           { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true },
-          { name: 'puc', label: 'Upload Pollution Certificate (PUC)', type: 'file', required: true }
-        ]
+          { name: 'puc', label: 'Upload PUC Certificate', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload ID Proof (Aadhaar / PAN)', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Address Proof', type: 'file', required: true },
+          { name: 'form20', label: 'Upload Form 20 (signed by dealer)', type: 'file', required: true }
+        ],
+        requiredDocs: ['Sale Invoice / Form 21 (from dealer)', 'Form 20 (Application for Registration — signed by dealer)', 'Valid Insurance Certificate', 'PUC Certificate', 'ID Proof — Aadhaar / PAN', 'Address Proof — Aadhaar / Utility bill / Voter ID', 'Form 22 (Road-worthiness certificate from manufacturer)', 'Temporary Registration Certificate']
       },
-      { 
-        id: 'transfer-ownership', 
-        label: 'Transfer Ownership', 
-        labelHi: 'स्वामित्व हस्तांतरण', 
-        iconName: 'ArrowRightLeft', 
-        description: 'Transfer vehicle ownership to a new buyer (Form 29/30)',
+      { id: 'transfer-ownership', label: 'Transfer Ownership', labelHi: 'स्वामित्व हस्तांतरण', iconName: 'ArrowRightLeft', description: 'Transfer vehicle ownership to a new buyer (Form 29/30)',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'Current RC number', required: true },
-          { name: 'oldOwnerName', label: "Old Owner's Name", type: 'text', required: true },
-          { name: 'newOwnerName', label: "New Owner's Name", type: 'text', required: true },
-          { name: 'newOwnerAddress', label: "New Owner's Address", type: 'textarea', required: true },
-          { name: 'transferReason', label: 'Transfer Reason', type: 'select', required: true, options: ['Sale', 'Inheritance', 'Gift', 'Lease', 'Other'] },
-          { name: 'noc', label: 'Upload NOC from Old Owner', type: 'file', required: true },
-          { name: 'agreement', label: 'Upload Sale Agreement', type: 'file', required: true },
-          { name: 'odometerReading', label: 'Odometer Reading', type: 'text', placeholder: 'Current KM', required: false }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', placeholder: 'e.g. DL 01 AB 1234', required: true },
+          { name: 'sellerName', label: 'Seller (Current Owner) Name', type: 'text', required: true },
+          { name: 'sellerAadhaar', label: "Seller's Aadhaar Number", type: 'text', required: true },
+          { name: 'buyerName', label: 'Buyer (New Owner) Name', type: 'text', required: true },
+          { name: 'buyerAadhaar', label: "Buyer's Aadhaar Number", type: 'text', required: true },
+          { name: 'buyerAddress', label: "Buyer's Address", type: 'textarea', required: true },
+          { name: 'buyerPhone', label: "Buyer's Mobile Number", type: 'tel', required: true },
+          { name: 'saleDate', label: 'Date of Sale', type: 'date', required: true },
+          { name: 'saleAmount', label: 'Sale Amount (₹)', type: 'text', required: true },
+          { name: 'form29', label: 'Upload Form 29 (Notice of Transfer)', type: 'file', required: true },
+          { name: 'form30', label: 'Upload Form 30 (Report of Transfer)', type: 'file', required: true },
+          { name: 'rcCopy', label: 'Upload RC Copy', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Valid Insurance', type: 'file', required: true },
+          { name: 'puc', label: 'Upload PUC Certificate', type: 'file', required: true },
+          { name: 'buyerIdProof', label: "Upload Buyer's ID Proof", type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 29 (Notice of Transfer) — signed by both buyer and seller', 'Form 30 (Report of Transfer) — signed by both buyer and seller', 'Original Registration Certificate (RC)', 'Valid Insurance Certificate (transferred to buyer)', 'PUC Certificate', "Buyer's ID & Address Proof — Aadhaar / Voter ID", "Seller's ID Proof", 'Chassis & Engine pencil print (some RTOs)']
       },
-      { 
-        id: 'address-change', 
-        label: 'Change of Address', 
-        labelHi: 'पता परिवर्तन', 
-        iconName: 'MapPin', 
-        description: 'Update your address on the RC book',
+      { id: 'address-change', label: 'Change of Address', labelHi: 'पता परिवर्तन', iconName: 'MapPin', description: 'Update your address on the RC book',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'newAddress', label: 'New Address', type: 'textarea', placeholder: 'Full new address', required: true },
-          { name: 'newState', label: 'New State', type: 'text', placeholder: 'State', required: true },
-          { name: 'addressProof', label: 'Upload Address Proof', type: 'file', required: true }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'oldAddress', label: 'Old Address (as on RC)', type: 'textarea', required: true },
+          { name: 'newAddress', label: 'New Address', type: 'textarea', required: true },
+          { name: 'rcCopy', label: 'Upload RC Copy', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload New Address Proof', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true }
+        ],
+        requiredDocs: ['Registration Certificate (RC)', 'Proof of New Address — Aadhaar / Utility bill / Rent agreement', 'Valid Insurance Certificate', 'PUC Certificate']
       },
-      { 
-        id: 'hypothecation', 
-        label: 'Hypothecation', 
-        labelHi: 'हाइपोथिकेशन', 
-        iconName: 'Building', 
-        description: 'Add, continue, or terminate hypothecation (loan) on RC',
+      { id: 'hypothecation', label: 'Hypothecation', labelHi: 'हाइपोथिकेशन', iconName: 'Building', description: 'Add, continue, or terminate hypothecation (loan) on RC',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'action', label: 'Action', type: 'select', required: true, options: ['Add Hypothecation', 'Continue Hypothecation', 'Terminate Hypothecation'] },
-          { name: 'bankName', label: 'Bank Name', type: 'text', placeholder: 'Finance bank name', required: true },
-          { name: 'loanDetails', label: 'Loan Details', type: 'textarea', placeholder: 'Loan agreement details', required: false }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'action', label: 'Hypothecation Action', type: 'select', required: true, options: ['Add Hypothecation (New Loan)', 'Terminate Hypothecation (Loan Closed)', 'Continue with New Financier'] },
+          { name: 'financierName', label: 'Financier / Bank Name', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'form35', label: 'Upload Form 35 (signed by financier)', type: 'file', required: true },
+          { name: 'nocFromBank', label: 'Upload NOC from Bank / Financier', type: 'file', required: true },
+          { name: 'rcCopy', label: 'Upload RC Copy', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 35 (duly signed by financier/bank)', 'NOC (No Objection Certificate) from bank/financier', 'Original Registration Certificate (RC)', 'Valid Insurance & PUC Certificate', 'Owner ID & Address Proof']
       },
-      { 
-        id: 'duplicate-rc', 
-        label: 'Duplicate RC', 
-        labelHi: 'डुप्लीकेट RC', 
-        iconName: 'Copy', 
-        description: 'Apply for a duplicate RC if lost or damaged',
+      { id: 'duplicate-rc', label: 'Duplicate RC', labelHi: 'डुप्लीकेट RC', iconName: 'Copy', description: 'Apply for a duplicate RC if lost or damaged',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'lossReason', label: 'Reason (Lost / Damaged)', type: 'select', required: true, options: ['Lost', 'Damaged', 'Stolen'] },
-          { name: 'policeReport', label: 'Police Report (if stolen)', type: 'file', required: false }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'reason', label: 'Reason for Duplicate', type: 'select', required: true, options: ['Lost', 'Stolen', 'Damaged / Mutilated'] },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'address', label: 'Address', type: 'textarea', required: true },
+          { name: 'firCopy', label: 'Upload FIR Copy (if lost/stolen)', type: 'file', required: true },
+          { name: 'affidavit', label: 'Upload Affidavit (Form 26)', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true },
+          { name: 'puc', label: 'Upload PUC Certificate', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload ID Proof', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 26 (Application for Duplicate RC)', 'FIR copy from police station (mandatory if lost/stolen)', 'Affidavit on stamp paper stating reason', 'Valid Insurance & PUC Certificate', 'ID & Address Proof', 'Chassis number pencil print (some RTOs)']
       },
-      { 
-        id: 'noc', 
-        label: 'Issue NOC', 
-        labelHi: 'NOC जारी', 
-        iconName: 'FileCheck', 
-        description: 'Get a No Objection Certificate for inter-state transfer',
+      { id: 'noc', label: 'Issue NOC', labelHi: 'NOC जारी', iconName: 'FileCheck', description: 'Get a No Objection Certificate for inter-state transfer',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'newState', label: 'New State (for transfer)', type: 'text', placeholder: 'Destination state', required: true },
-          { name: 'reason', label: 'Reason for NOC', type: 'select', required: true, options: ['Owner Relocation', 'Sale to Another State', 'Export', 'Other'] }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'currentState', label: 'Current Registration State', type: 'text', required: true },
+          { name: 'transferToState', label: 'Transfer To State', type: 'text', required: true },
+          { name: 'reason', label: 'Reason for NOC', type: 'select', required: true, options: ['Permanent Relocation', 'Sale to Buyer in Another State', 'Other'] },
+          { name: 'rcCopy', label: 'Upload RC Copy', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true },
+          { name: 'puc', label: 'Upload PUC Certificate', type: 'file', required: true },
+          { name: 'addressProof', label: 'Upload Address Proof (new state)', type: 'file', required: true },
+          { name: 'taxReceipt', label: 'Upload Road Tax Clearance Receipt', type: 'file', required: true }
+        ],
+        requiredDocs: ['Application for NOC', 'Original RC', 'Valid Insurance & PUC', 'Road Tax clearance from current state', 'Address Proof of new state', 'No pending challans / violations clearance']
       },
-      { 
-        id: 'renewal', 
-        label: 'RC Renewal', 
-        labelHi: 'RC नवीनीकरण', 
-        iconName: 'RefreshCw', 
-        description: 'Renew vehicle registration after 15-year validity',
+      { id: 'renewal', label: 'RC Renewal', labelHi: 'RC नवीनीकरण', iconName: 'RefreshCw', description: 'Renew vehicle registration after 15-year validity',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'currentValidityEnd', label: 'Current Validity End Date', type: 'date', required: true },
-          { name: 'renewalFor', label: 'Renew For', type: 'select', required: true, options: ['5 Years', '10 Years', '15 Years'] },
-          { name: 'fitnessCert', label: 'Fitness Certificate (for 15+ year vehicles)', type: 'file', required: false }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'rcExpiryDate', label: 'RC Expiry Date', type: 'date', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'address', label: 'Address', type: 'textarea', required: true },
+          { name: 'rcCopy', label: 'Upload RC Copy (Form 25)', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true },
+          { name: 'puc', label: 'Upload PUC Certificate', type: 'file', required: true },
+          { name: 'fitnessCert', label: 'Upload Fitness Certificate (if applicable)', type: 'file', required: false }
+        ],
+        requiredDocs: ['Form 25 (Application for Renewal)', 'Original RC', 'Valid Insurance & PUC', 'Fitness Certificate (for commercial vehicles)', 'Road Tax payment receipt', 'Note: RC can be renewed for 5 years after 15-year expiry']
       },
-      { 
-        id: 'fitness-cert', 
-        label: 'Fitness Certificate', 
-        labelHi: 'फिटनेस प्रमाणपत्र', 
-        iconName: 'HeartPulse', 
-        description: 'Apply for fitness certificate for commercial or 15yr+ vehicles',
+      { id: 'fitness-cert', label: 'Fitness Certificate', labelHi: 'फिटनेस प्रमाणपत्र', iconName: 'HeartPulse', description: 'Apply for fitness certificate for commercial or 15yr+ vehicles',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'vehicleAge', label: 'Vehicle Age (Years)', type: 'text', placeholder: 'How old is vehicle?', required: true },
-          { name: 'certificationCentre', label: 'Authorized Certification Centre', type: 'text', placeholder: 'Where tested?', required: true },
-          { name: 'testReport', label: 'Upload Test Report', type: 'file', required: true }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'vehicleType', label: 'Vehicle Type', type: 'select', required: true, options: ['Transport (Commercial)', 'Private (15+ years old)'] },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'rcCopy', label: 'Upload RC Copy (Form 25/38)', type: 'file', required: true },
+          { name: 'insurance', label: 'Upload Insurance Certificate', type: 'file', required: true },
+          { name: 'puc', label: 'Upload PUC Certificate', type: 'file', required: true },
+          { name: 'taxReceipt', label: 'Upload Road Tax Receipt', type: 'file', required: true }
+        ],
+        requiredDocs: ['Form 25 (private) / Form 38 (transport) for fitness', 'RC Copy', 'Valid Insurance & PUC', 'Road Tax payment receipt', 'Chassis number pencil print', 'Note: Vehicle must be physically inspected at RTO / Automated Testing Station']
       },
-      { 
-        id: 'rc-extract', 
-        label: 'RC Extract', 
-        labelHi: 'RC उद्धरण', 
-        iconName: 'FileOutput', 
-        description: 'Get a certified extract of your RC details from Vahan portal',
+      { id: 'rc-extract', label: 'RC Extract', labelHi: 'RC उद्धरण', iconName: 'FileOutput', description: 'Get a certified extract of your RC details from Vahan portal',
         formFields: [
-          { name: 'registrationNumber', label: 'Vehicle Registration Number', type: 'text', placeholder: 'RC number', required: true },
-          { name: 'purpose', label: 'Purpose of Extract', type: 'select', required: true, options: ['Loan', 'Insurance', 'Legal', 'Other'] },
-          { name: 'quantity', label: 'Number of Certified Copies', type: 'select', required: true, options: ['1', '2', '3', '5'] }
-        ]
+          { name: 'vehicleRegNo', label: 'Vehicle Registration Number', type: 'text', required: true },
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'purpose', label: 'Purpose of Extract', type: 'select', required: true, options: ['Insurance Claim', 'Legal Proceedings', 'Loan Application', 'Ownership Verification', 'Other'] }
+        ],
+        requiredDocs: ['Vehicle Registration Number', 'Owner ID Proof', 'Note: RC extract available on vahan.parivahan.gov.in']
       },
-      { 
-        id: 'fancy-number', 
-        label: 'Fancy Number Booking', 
-        labelHi: 'फैंसी नंबर बुकिंग', 
-        iconName: 'Hash', 
-        description: 'Book a choice/fancy registration number for your vehicle',
+      { id: 'fancy-number', label: 'Fancy Number Booking', labelHi: 'फैंसी नंबर बुकिंग', iconName: 'Hash', description: 'Book a choice/fancy registration number for your vehicle',
         formFields: [
-          { name: 'registrationNumber', label: 'Current Registration Number', type: 'text', placeholder: 'Current RC number', required: true },
-          { name: 'desiredNumber', label: 'Desired Fancy Number', type: 'text', placeholder: 'e.g., DL-01-AB-1111', required: true },
-          { name: 'numberType', label: 'Number Type', type: 'select', required: true, options: ['Personalised', 'Vanity', 'Premium'] },
-          { name: 'additionalFee', label: 'I agree to pay the fancy number premium', type: 'text', placeholder: 'Type YES', required: true }
-        ]
+          { name: 'ownerName', label: 'Owner Name', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number', type: 'tel', required: true },
+          { name: 'vehicleMake', label: 'Vehicle Make & Model', type: 'text', required: true },
+          { name: 'chassisNo', label: 'Chassis Number', type: 'text', required: true },
+          { name: 'preferredNumber', label: 'Preferred Registration Number', type: 'text', placeholder: 'e.g. 0001, 7777, 9999', required: true },
+          { name: 'state', label: 'State / RTO', type: 'text', required: true },
+          { name: 'invoice', label: 'Upload Vehicle Invoice', type: 'file', required: true },
+          { name: 'idProof', label: 'Upload ID Proof', type: 'file', required: true }
+        ],
+        requiredDocs: ['Vehicle Invoice / Booking receipt', 'ID Proof — Aadhaar / PAN', 'Fancy number fee (varies by state — can be ₹5,000 to ₹5,00,000+)', 'Note: Booking done via Vahan portal or RTO auction']
       }
     ],
     eligibility: ['Owner of a motor vehicle', 'Vehicle must be registered within 7 days of purchase', 'Valid for 15 years (can be renewed)'],
@@ -1394,112 +1471,98 @@ export const documentsData: DocumentInfo[] = [
     category: 'Finance',
     iconName: 'Smartphone',
     services: [
-      { 
-        id: 'register-link', 
-        label: 'Register & Link Bank', 
-        labelHi: 'पंजीकरण और बैंक लिंक', 
-        iconName: 'Link', 
-        description: 'Register on a UPI app and link your bank account',
+      { id: 'register-link', label: 'Register & Link Bank', labelHi: 'पंजीकरण और बैंक लिंक', iconName: 'Link', description: 'Register on a UPI app and link your bank account',
         formFields: [
-          { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'As per bank account', required: true },
-          { name: 'phone', label: 'Mobile Number (linked to bank)', type: 'tel', placeholder: '10-digit mobile number', required: true },
-          { name: 'email', label: 'Email Address', type: 'email', placeholder: 'you@example.com', required: true },
+          { name: 'fullName', label: 'Full Name (as per Bank Account)', type: 'text', required: true },
+          { name: 'phone', label: 'Mobile Number (linked to bank)', type: 'tel', placeholder: '10-digit mobile', required: true },
+          { name: 'email', label: 'Email Address', type: 'email', required: false },
+          { name: 'bankName', label: 'Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Canara Bank', 'Union Bank of India', 'Indian Bank', 'Bank of India', 'Central Bank of India', 'Other'] },
+          { name: 'accountType', label: 'Account Type', type: 'select', required: true, options: ['Savings', 'Current'] },
+          { name: 'upiApp', label: 'Preferred UPI App', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'Amazon Pay', 'Bank\'s Own App', 'Other'] },
+          { name: 'debitCardLast6', label: 'Debit Card Last 6 Digits (for UPI PIN)', type: 'text', placeholder: 'Last 6 digits of debit card', required: true },
+          { name: 'debitCardExpiry', label: 'Debit Card Expiry Date', type: 'text', placeholder: 'MM/YY', required: true }
+        ],
+        requiredDocs: ['Bank account with mobile number registered', 'Active debit card (Visa/MasterCard/RuPay) issued by the bank', 'Smartphone with internet connection', 'Note: UPI PIN will be set using debit card details + OTP']
+      },
+      { id: 'create-vpa', label: 'Create / Change VPA', labelHi: 'VPA बनाएँ / बदलें', iconName: 'AtSign', description: 'Create or customize your UPI ID (Virtual Payment Address)',
+        formFields: [
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
+          { name: 'currentVpa', label: 'Current UPI ID (if changing)', type: 'text', placeholder: 'e.g. yourname@upi', required: false },
+          { name: 'preferredVpa', label: 'Preferred New UPI ID', type: 'text', placeholder: 'e.g. yourname@okicici', required: true },
+          { name: 'bankName', label: 'Linked Bank', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Other'] },
+          { name: 'upiApp', label: 'UPI App', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'Bank App', 'Other'] }
+        ],
+        requiredDocs: ['Active UPI registration on the app', 'Linked bank account', 'Note: VPA format is username@bankhandle (e.g. user@ybl, user@okhdfcbank)']
+      },
+      { id: 'check-limit', label: 'Check Transaction Limit', labelHi: 'लेन-देन सीमा', iconName: 'BarChart3', description: 'Check your per-transaction and daily UPI limits',
+        formFields: [
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
+          { name: 'bankName', label: 'Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Other'] },
+          { name: 'upiApp', label: 'UPI App Used', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'Bank App', 'Other'] }
+        ],
+        requiredDocs: ['Active UPI account', 'Note: Standard limits — ₹1,00,000/transaction (P2P), ₹2,00,000 for specific categories (IPO, Tax, Insurance)', 'Note: UPI Lite limit — ₹500/transaction, ₹2,000 wallet balance']
+      },
+      { id: 'raise-complaint', label: 'Raise Complaint', labelHi: 'शिकायत दर्ज', iconName: 'AlertCircle', description: 'Raise a dispute for failed or incorrect UPI transactions',
+        formFields: [
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
+          { name: 'upiTransactionId', label: 'UPI Transaction ID / Reference Number', type: 'text', placeholder: '12-digit UPI reference number', required: true },
+          { name: 'transactionDate', label: 'Transaction Date', type: 'date', required: true },
+          { name: 'amount', label: 'Transaction Amount (₹)', type: 'text', required: true },
+          { name: 'complaintType', label: 'Complaint Type', type: 'select', required: true, options: ['Money Debited but Not Credited to Beneficiary', 'Wrong Person Credited', 'Transaction Failed but Amount Debited', 'Duplicate Transaction', 'Unauthorized / Fraudulent Transaction', 'Other'] },
+          { name: 'beneficiaryVpa', label: 'Beneficiary UPI ID / Account', type: 'text', placeholder: 'UPI ID or account of intended recipient', required: true },
+          { name: 'bankName', label: 'Your Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Other'] },
+          { name: 'description', label: 'Describe the Issue', type: 'textarea', placeholder: 'Provide details of the failed/incorrect transaction', required: true },
+          { name: 'screenshot', label: 'Upload Transaction Screenshot', type: 'file', required: false }
+        ],
+        requiredDocs: ['UPI Transaction ID / Reference Number', 'Transaction date and amount', 'Screenshot of transaction (if available)', 'Note: Raise complaint within 30 days of transaction', 'Note: Banks must resolve within 5–10 working days (RBI mandate)']
+      },
+      { id: 'autopay', label: 'Auto-Pay / Mandate Setup', labelHi: 'ऑटो-पे सेटअप', iconName: 'CalendarClock', description: 'Set up recurring UPI payments for bills and subscriptions',
+        formFields: [
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
+          { name: 'vpa', label: 'Your UPI ID', type: 'text', placeholder: 'e.g. yourname@upi', required: true },
+          { name: 'mandateType', label: 'Mandate Type', type: 'select', required: true, options: ['Recurring (Fixed Amount)', 'Recurring (Variable Amount)', 'One-time Future Payment'] },
+          { name: 'merchantName', label: 'Merchant / Biller Name', type: 'text', placeholder: 'e.g. Netflix, Electricity Board', required: true },
+          { name: 'amount', label: 'Amount (₹)', type: 'text', placeholder: 'Per-payment amount', required: true },
+          { name: 'frequency', label: 'Payment Frequency', type: 'select', required: true, options: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly', 'One-time'] },
+          { name: 'startDate', label: 'Start Date', type: 'date', required: true },
+          { name: 'endDate', label: 'End Date (optional)', type: 'date', required: false },
+          { name: 'bankName', label: 'Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Other'] }
+        ],
+        requiredDocs: ['Active UPI account with linked bank', 'Merchant/Biller details', 'UPI PIN for mandate authorization', 'Note: UPI AutoPay limit — ₹1,00,000 (as per NPCI guidelines)', 'Note: You will receive notification before each debit']
+      },
+      { id: 'upi-lite', label: 'Enable UPI Lite', labelHi: 'UPI Lite सक्रिय करें', iconName: 'Wallet', description: 'Enable PIN-less small payments up to ₹1,000 via UPI Lite',
+        formFields: [
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
+          { name: 'vpa', label: 'Your UPI ID', type: 'text', required: true },
+          { name: 'bankName', label: 'Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Canara Bank', 'Union Bank', 'Other'] },
+          { name: 'loadAmount', label: 'Initial Load Amount (₹)', type: 'text', placeholder: 'Max ₹2,000 wallet balance', required: true },
+          { name: 'upiApp', label: 'UPI App', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'Bank App', 'Other'] }
+        ],
+        requiredDocs: ['Active UPI account', 'UPI PIN for initial wallet load', 'Note: UPI Lite — PIN-less transactions up to ₹500/payment', 'Note: Maximum wallet balance — ₹2,000', 'Note: Works offline on NFC-enabled devices (UPI Lite X)']
+      },
+      { id: 'check-balance', label: 'Check Balance', labelHi: 'बैलेंस जाँचें', iconName: 'Eye', description: 'Check your bank account balance via UPI without visiting bank',
+        formFields: [
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
           { name: 'bankName', label: 'Bank Name', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Other'] },
           { name: 'accountType', label: 'Account Type', type: 'select', required: true, options: ['Savings', 'Current'] },
-          { name: 'debitCardLastFour', label: 'Last 4 digits of Debit Card', type: 'text', placeholder: 'XXXX', required: true }
-        ]
+          { name: 'upiApp', label: 'UPI App', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'Bank App', 'Other'] }
+        ],
+        requiredDocs: ['Active UPI account linked to bank', 'UPI PIN (required for balance check)', 'Note: Balance enquiry is free and instant']
       },
-      { 
-        id: 'create-vpa', 
-        label: 'Create / Change VPA', 
-        labelHi: 'VPA बनाएँ / बदलें', 
-        iconName: 'AtSign', 
-        description: 'Create or customize your UPI ID (Virtual Payment Address)',
+      { id: 'deregister', label: 'Deregister UPI', labelHi: 'UPI डीरजिस्टर', iconName: 'UserX', description: 'Deregister your UPI ID from a specific app or device',
         formFields: [
-          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'currentVPA', label: 'Current VPA (if changing)', type: 'text', placeholder: 'user@upiapp', required: false },
-          { name: 'newVPA', label: 'Desired VPA', type: 'text', placeholder: 'yourname@upiapp', required: true },
-          { name: 'upiApp', label: 'UPI App', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'WhatsApp Pay', 'Bank App'] }
-        ]
-      },
-      { 
-        id: 'check-limit', 
-        label: 'Check Transaction Limit', 
-        labelHi: 'लेन-देन सीमा', 
-        iconName: 'BarChart3', 
-        description: 'Check your per-transaction and daily UPI limits',
-        formFields: [
-          { name: 'vpa', label: 'Your UPI ID (VPA)', type: 'text', placeholder: 'user@upiapp', required: true },
-          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true }
-        ]
-      },
-      { 
-        id: 'raise-complaint', 
-        label: 'Raise Complaint', 
-        labelHi: 'शिकायत दर्ज', 
-        iconName: 'AlertCircle', 
-        description: 'Raise a dispute for failed or incorrect UPI transactions',
-        formFields: [
-          { name: 'vpa', label: 'Your UPI ID', type: 'text', placeholder: 'user@upiapp', required: true },
-          { name: 'transactionId', label: 'Transaction ID / Reference', type: 'text', placeholder: '18-digit reference', required: true },
-          { name: 'transactionDate', label: 'Transaction Date', type: 'date', required: true },
-          { name: 'amount', label: 'Amount (₹)', type: 'text', placeholder: 'Transaction amount', required: true },
-          { name: 'recipientVPA', label: "Recipient's VPA", type: 'text', placeholder: 'recipient@upiapp', required: true },
-          { name: 'issueType', label: 'Issue Type', type: 'select', required: true, options: ['Amount Debited - Not Credited', 'Wrong Amount Sent', 'Transaction Failed - Amount Debited', 'Duplicate Debit', 'Unauthorized Transaction', 'Other'] },
-          { name: 'complaintDetails', label: 'Complaint Details', type: 'textarea', placeholder: 'Describe the issue', required: true }
-        ]
-      },
-      { 
-        id: 'autopay', 
-        label: 'Auto-Pay / Mandate Setup', 
-        labelHi: 'ऑटो-पे सेटअप', 
-        iconName: 'CalendarClock', 
-        description: 'Set up recurring UPI payments for bills and subscriptions',
-        formFields: [
-          { name: 'vpa', label: 'Your UPI ID', type: 'text', placeholder: 'user@upiapp', required: true },
-          { name: 'payeeVPA', label: "Biller's UPI ID", type: 'text', placeholder: 'biller@upiapp', required: true },
-          { name: 'amount', label: 'Amount (₹)', type: 'text', placeholder: 'Monthly amount', required: true },
-          { name: 'frequency', label: 'Frequency', type: 'select', required: true, options: ['Weekly', 'Bi-Weekly', 'Monthly', 'Quarterly', 'Half-Yearly', 'Yearly'] },
-          { name: 'startDate', label: 'Start Date', type: 'date', required: true },
-          { name: 'endDate', label: 'End Date', type: 'date', required: true },
-          { name: 'purpose', label: 'Purpose', type: 'text', placeholder: 'e.g., Electricity Bill', required: true }
-        ]
-      },
-      { 
-        id: 'upi-lite', 
-        label: 'Enable UPI Lite', 
-        labelHi: 'UPI Lite सक्रिय करें', 
-        iconName: 'Wallet', 
-        description: 'Enable PIN-less small payments up to ₹1,000 via UPI Lite',
-        formFields: [
-          { name: 'vpa', label: 'Your UPI ID', type: 'text', placeholder: 'user@upiapp', required: true },
-          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true },
-          { name: 'agreeTerms', label: 'I agree to UPI Lite terms & conditions', type: 'text', placeholder: 'Type YES', required: true }
-        ]
-      },
-      { 
-        id: 'check-balance', 
-        label: 'Check Balance', 
-        labelHi: 'बैलेंस जाँचें', 
-        iconName: 'Eye', 
-        description: 'Check your bank account balance via UPI without visiting bank',
-        formFields: [
-          { name: 'vpa', label: 'Your UPI ID', type: 'text', placeholder: 'user@upiapp', required: true },
-          { name: 'phone', label: 'Mobile Number', type: 'tel', placeholder: '10-digit mobile', required: true }
-        ]
-      },
-      { 
-        id: 'deregister', 
-        label: 'Deregister UPI', 
-        labelHi: 'UPI डीरजिस्टर', 
-        iconName: 'UserX', 
-        description: 'Deregister your UPI ID from a specific app or device',
-        formFields: [
-          { name: 'vpa', label: 'Your UPI ID', type: 'text', placeholder: 'user@upiapp', required: true },
-          { name: 'upiApp', label: 'UPI App', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'WhatsApp Pay', 'Bank App', 'All Apps'] },
-          { name: 'deregisterReason', label: 'Reason for Deregistration', type: 'select', required: true, options: ['Changing Device', 'Changing App', 'Security Concern', 'Account Closure', 'Other'] },
-          { name: 'confirmation', label: 'I want to deregister this UPI ID', type: 'text', placeholder: 'Type YES', required: true }
-        ]
+          { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+          { name: 'phone', label: 'Registered Mobile Number', type: 'tel', required: true },
+          { name: 'vpa', label: 'UPI ID to Deregister', type: 'text', placeholder: 'e.g. yourname@upi', required: true },
+          { name: 'bankName', label: 'Linked Bank', type: 'select', required: true, options: ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Punjab National Bank', 'Bank of Baroda', 'Axis Bank', 'Kotak Mahindra Bank', 'Other'] },
+          { name: 'reason', label: 'Reason for Deregistration', type: 'select', required: true, options: ['Switching to Different App', 'Closing Bank Account', 'Device Lost / Stolen', 'Security Concern', 'No Longer Using UPI', 'Other'] },
+          { name: 'upiApp', label: 'UPI App to Deregister From', type: 'select', required: true, options: ['BHIM', 'Google Pay', 'PhonePe', 'Paytm', 'Bank App', 'Other'] }
+        ],
+        requiredDocs: ['UPI ID and linked bank details', 'Access to registered mobile number', 'Note: Deregistration removes UPI ID from the app only; bank account remains active', 'Note: If device is lost, contact bank immediately to block UPI access']
       }
     ],
     eligibility: ['Any Indian bank account holder', 'Must have a mobile number linked to bank', 'Supported on Android and iOS devices'],
